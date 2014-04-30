@@ -16,7 +16,8 @@ namespace Core
 
 		namespace Video {
 			extern float FOVY;
-			extern float DrawDistance;
+			extern float MinDrawDistance;
+			extern float MaxDrawDistance;
 
 			extern float MaxForegroundFPS;
 			extern float MaxBackgroundFPS;

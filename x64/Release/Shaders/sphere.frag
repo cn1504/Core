@@ -1,36 +1,34 @@
 #version 330
 
-// Uniform variables.
-uniform mat4 ModelViewProjectionMatrix;
-uniform vec3 CameraPosition;
+uniform mat4 ProjectionMatrix;
 uniform vec3 SpherePosition;
-uniform vec4 DiffuseColor;
 uniform float Radius;
+uniform vec4 DiffuseColor;
 
-// Interpolated input values
-layout (location = 0) in vec3 inVertex;
-layout (location = 1) in vec3 inNormal;
+layout(location=0) in vec3 Vertex;
+layout(location=1) in vec3 Normal;
+
+layout(location=0) out vec4 diffuseOut;
+layout(location=1) out vec4 normalOut;
 
 void main(void)
 {	
-	float r = Radius;
-	vec3 o = SpherePosition - CameraPosition;
-	vec3 d = normalize(inVertex - CameraPosition);
+	vec3 rayDirection = normalize(Vertex);
 	
-	//Compute A, B and C coefficients
-	float a = dot(d, d);
-    float b = 2 * dot(d, o);
-    float c = dot(o, o) - (r * r);
+	float B = 2.0 * dot(rayDirection, -SpherePosition);
+	float C = dot(SpherePosition, SpherePosition) - (Radius * Radius);
 	
-	//Find discriminant
-    float disc = b * b - 4 * a * c;
-    
-    // if discriminant is negative there are no real roots, so return 
-    // false as ray misses sphere
-    if (disc < 0)
-        discard;
+	float det = (B * B) - (4 * C);
+	if(det < 0.0)
+		discard;
+		
+	float sqrtDet = sqrt(det);
+	float posT = (-B + sqrtDet)/2;
+	float negT = (-B - sqrtDet)/2;
 	
-	gl_FragData [0] = DiffuseColor;
-	gl_FragData [1] = vec4(inNormal, 0.0);
-	//gl_FragData [2] = SpecularColor;
+	float intersectT = min(posT, negT);
+	vec3 cameraPos = rayDirection * intersectT;
+	normalOut = vec4(normalize(cameraPos - SpherePosition), 0.0);
+	
+	diffuseOut = DiffuseColor;
 }

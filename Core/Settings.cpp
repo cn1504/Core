@@ -14,7 +14,8 @@ namespace Core
 
 		namespace Video {
 			float FOVY;
-			float DrawDistance;
+			float MinDrawDistance;
+			float MaxDrawDistance;
 
 			float MaxForegroundFPS;
 			float MaxBackgroundFPS;
@@ -59,7 +60,8 @@ namespace Core
 			Window::Y = (glfwGetVideoMode(glfwGetPrimaryMonitor())->height - Window::Height) / 2;
 
 			Video::FOVY = 45;
-			Video::DrawDistance = 1000;
+			Video::MinDrawDistance = 0.1f;
+			Video::MaxDrawDistance = 1000;
 			Video::MaxForegroundFPS = 120;
 			Video::MaxBackgroundFPS = 15;
 
@@ -93,7 +95,8 @@ namespace Core
 					else if (setting == "WindowPositionY") { Window::Y = std::stoi(value); }
 
 					else if (setting == "FOVY") { Video::FOVY = std::stof(value); }
-					else if (setting == "DrawDistance") { Video::DrawDistance = std::stof(value); }
+					else if (setting == "MinDrawDistance") { Video::MinDrawDistance = std::stof(value); }
+					else if (setting == "MaxDrawDistance") { Video::MaxDrawDistance = std::stof(value); }
 					else if (setting == "MaxForegroundFPS") { Video::MaxForegroundFPS = std::stof(value); }
 					else if (setting == "MaxBackgroundFPS") { Video::MaxBackgroundFPS = std::stof(value); }
 
@@ -134,7 +137,8 @@ namespace Core
 				settingsFile << "WindowPositionY" << ": " << Window::Y << std::endl;
 
 				settingsFile << "FOVY" << ": " << Video::FOVY << std::endl;
-				settingsFile << "DrawDistance" << ": " << Video::DrawDistance << std::endl;
+				settingsFile << "MinDrawDistance" << ": " << Video::MinDrawDistance << std::endl;
+				settingsFile << "MaxDrawDistance" << ": " << Video::MaxDrawDistance << std::endl;
 				settingsFile << "MaxForegroundFPS" << ": " << Video::MaxForegroundFPS << std::endl;
 				settingsFile << "MaxBackgroundFPS" << ": " << Video::MaxBackgroundFPS << std::endl;
 

@@ -1,16 +1,15 @@
 #version 330
 
-// Interpolated input values
-layout (location = 0) in vec3 inVertex;
-layout (location = 1) in vec3 inNormal;
-
-// Uniform variables.
 uniform vec4 DiffuseColor;
+
+layout(location=0) in vec3 Vertex;
+layout(location=1) in vec3 Normal;
+
+layout(location=0) out vec4 diffuseOut;
+layout(location=1) out vec4 normalOut;
 
 void main(void)
 {	
-	//gl_FragData [0] = vec4(1.0,1.0,1.0,1.0);
-	gl_FragData [0] = DiffuseColor;
-	gl_FragData [1] = vec4(inNormal, 0.0);
-	//gl_FragData [2] = SpecularColor;
+	diffuseOut = DiffuseColor;
+	normalOut = vec4(Normal, 0.0);
 }

@@ -32,7 +32,7 @@ namespace Core
 		Entities.push_back(e);
 		
 		e = new Entity();
-		e->Transform.Position = glm::vec3(0.0f, 2.0f, -1.5f);
+		e->Transform.Position = glm::vec3(0.0f, 2.0f, -1.0f);
 		e->AddComponent(box.GenerateMesh());
 		e->AddComponent(new Material());
 		Entities.push_back(e);
@@ -78,22 +78,21 @@ namespace Core
 
 		glm::mat4 P = Camera->GetProjectionMatrix();
 		glm::mat4 V = Camera->GetViewMatrix();
-		glm::mat4 VP = P * V;
 		for (auto e : Entities)
 		{
 			if (e->IsRenderable()) {
 				glm::mat4 M = e->Transform.ToMatrix();
-				glm::mat4 MVP = VP * M;
+				glm::mat4 MV = V * M;
+				glm::mat4 MVP = P * MV;
 
 				auto r = e->GetRenderable();
 				if (r == Assets::Meshes["UnitSphere"])
 				{
 					SphereShader->MakeCurrent();
 					glUniformMatrix4fv(SphereShader->GetUL("ModelViewProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(MVP)); 
-					glUniformMatrix4fv(SphereShader->GetUL("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(M));
+					glUniformMatrix4fv(SphereShader->GetUL("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(MV));
 					glUniform4fv(SphereShader->GetUL("DiffuseColor"), 1, glm::value_ptr(glm::vec4(e->GetComponent<Material>()->DiffuseColor, 1.0f)));
-					glUniform3fv(SphereShader->GetUL("CameraPosition"), 1, glm::value_ptr(Camera->Entity->Transform.Position));
-					glUniform3fv(SphereShader->GetUL("SpherePosition"), 1, glm::value_ptr(e->Transform.Position));
+					glUniform3fv(SphereShader->GetUL("SpherePosition"), 1, glm::value_ptr(glm::vec3(V * glm::vec4(e->Transform.Position, 1.0f))));
 					glUniform1f(SphereShader->GetUL("Radius"), 0.5f);
 
 					r->EnableBuffers();
@@ -105,6 +104,7 @@ namespace Core
 				else
 				{
 					glUniformMatrix4fv(MeshShader->GetUL("ModelViewProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(MVP));
+					glUniformMatrix4fv(MeshShader->GetUL("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(MV));
 					glUniform4fv(MeshShader->GetUL("DiffuseColor"), 1, glm::value_ptr(glm::vec4(e->GetComponent<Material>()->DiffuseColor, 1.0f)));
 
 					r->EnableBuffers();

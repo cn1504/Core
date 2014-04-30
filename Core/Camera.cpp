@@ -27,8 +27,8 @@ namespace Core
 		projection = glm::perspective(
 			Settings::Video::FOVY,
 			((float)Settings::Window::Width) / ((float)Settings::Window::Height),
-			0.1f,
-			Settings::Video::DrawDistance);
+			Settings::Video::MinDrawDistance,
+			Settings::Video::MaxDrawDistance);
 	}
 
 
