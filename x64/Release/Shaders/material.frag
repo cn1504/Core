@@ -1,4 +1,4 @@
-#version 400 core
+#version 330
 
 // Interpolated input values
 layout (location = 0) in vec3 inVertex;
