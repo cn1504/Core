@@ -1,0 +1,16 @@
+Available Monitors:
+	1. Generic PnP Monitor - 1920x1080x32 @ 60Hz
+
+
+OpenCL Platforms:
+	1. Advanced Micro Devices, Inc.
+
+Compiling "Shaders/mesh.vert"
+Compiling "Shaders/material.frag"
+Linking "Shaders/mesh.vert" + "Shaders/material.frag"
+Compiling "Shaders/fspassthrough.vert"
+Compiling "Shaders/fxaa.frag"
+Linking "Shaders/fspassthrough.vert" + "Shaders/fxaa.frag"
+Compiling "Shaders/mesh.vert"
+Compiling "Shaders/sphere.frag"
+Linking "Shaders/mesh.vert" + "Shaders/sphere.frag"
