@@ -19,7 +19,7 @@ namespace Core
 			const GLenum ErrorValue = glGetError();
 
 			if (ErrorValue != GL_NO_ERROR) {
-				Log(error_message);
+				Log("GL Error: \"" + std::to_string(ErrorValue) + "\": " + error_message);
 				Close();
 				exit(EXIT_FAILURE);
 			}

@@ -11,10 +11,12 @@ namespace Core
 	Scene::Scene()
 	{
 		GeometryRB = new RenderBuffer(glm::vec3(0.0f), 2, true);
+		Debug::GLError("ERROR: Could not complete geometry renderbuffer.");
 
 		MeshShader = new Shader("Shaders/mesh.vert", "Shaders/material.frag");
 		FXAAShader = new Shader("Shaders/fspassthrough.vert", "Shaders/fxaa.frag");
 		SphereShader = new Shader("Shaders/mesh.vert", "Shaders/sphere.frag");
+		Debug::GLError("ERROR: Could not complete shader compilation.");
 
 
 		auto c = new Entity();
@@ -89,6 +91,7 @@ namespace Core
 				if (r == Assets::Meshes["UnitSphere"])
 				{
 					SphereShader->MakeCurrent();
+
 					glUniformMatrix4fv(SphereShader->GetUL("ModelViewProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(MVP)); 
 					glUniformMatrix4fv(SphereShader->GetUL("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(MV));
 					glUniform4fv(SphereShader->GetUL("DiffuseColor"), 1, glm::value_ptr(glm::vec4(e->GetComponent<Material>()->DiffuseColor, 1.0f)));

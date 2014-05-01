@@ -11,7 +11,7 @@ namespace Core
 		// Create a windowed mode window and its OpenGL context 
 		glfwWindowHint(GLFW_DECORATED, GL_FALSE);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 		WindowPtr = glfwCreateWindow(
 			Settings::Window::Width,
 			Settings::Window::Height, 

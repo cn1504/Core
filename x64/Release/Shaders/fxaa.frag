@@ -1,16 +1,14 @@
-#version 330
+#version 130
 
 uniform sampler2D sourceTexture;
 uniform vec2 frameSize;
 
 in vec2 texCoord;
 
-out vec4 outColor;
+out vec4 FragColor;
 
 void main(void)
 {	
-    //outColor.xyz = texture2D(sourceTexture, texCoord).xyz;
-
 	// FXAA
 	//----------------------------------------------------------------------------------------
     float FXAA_SPAN_MAX   = 8.0;
@@ -56,10 +54,10 @@ void main(void)
     float lumaB = dot(rgbB, luma);
 
     if((lumaB < lumaMin) || (lumaB > lumaMax)){
-        outColor.xyz = rgbA;
+        FragColor.xyz = rgbA;
     }else{
-        outColor.xyz = rgbB;
+        FragColor.xyz = rgbB;
     }
 	
-	outColor.w = 1.0;
+	FragColor.w = 1.0;
 }

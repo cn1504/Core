@@ -19,6 +19,7 @@ namespace Core
 
 		void MakeCurrent();
 		GLuint GetUL(std::string var);
+		GLuint GetID();
 	};
 
 }

@@ -1,17 +1,17 @@
-#version 330
+#version 130
 
 uniform mat4 ModelViewProjectionMatrix;
 uniform mat4 ModelViewMatrix;
 
-layout(location=0) in vec3 mVertex;
-layout(location=1) in vec3 mNormal;
+in vec3 Vertex;
+in vec3 Normal;
 
-layout(location=0) out vec3 Vertex;
-layout(location=1) out vec3 Normal;
+out vec3 viewVertex;
+out vec3 viewNormal;
 
 void main(void) 
 {
-	Vertex	        = vec3((ModelViewMatrix) * vec4(mVertex, 1.0));
-	Normal			= vec3((ModelViewMatrix) * vec4(mNormal, 0.0));
-	gl_Position     = (ModelViewProjectionMatrix) * vec4(mVertex, 1.0);
+	viewVertex	        = vec3((ModelViewMatrix) * vec4(Vertex, 1.0));
+	viewNormal			= vec3((ModelViewMatrix) * vec4(Normal, 0.0));
+	gl_Position         = (ModelViewProjectionMatrix) * vec4(Vertex, 1.0);
 }

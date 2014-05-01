@@ -14,6 +14,7 @@ namespace Core
 			Debug::Log("Compiling \"" + fragment + "\"");
 		shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, fragment));
 
+
 		if (Settings::Misc::VerboseLogging)
 			Debug::Log("Linking \"" + vertex + "\" + \"" + fragment + "\"");
 		ProgramId = CreateProgram(shaderList);
@@ -93,9 +94,13 @@ namespace Core
 	GLuint Shader::CreateProgram(const std::vector<GLuint> &shaderList)
 	{
 		GLuint program = glCreateProgram();
-
+		
 		for (auto shader : shaderList)
 			glAttachShader(program, shader);
+		
+		glBindAttribLocation(program, 0, "Vertex");
+		glBindAttribLocation(program, 1, "Normal");
+		glBindAttribLocation(program, 2, "UV");
 
 		glLinkProgram(program);
 
@@ -129,6 +134,11 @@ namespace Core
 	void Shader::MakeCurrent()
 	{
 		glUseProgram(ProgramId);
+	}
+
+	GLuint Shader::GetID()
+	{
+		return ProgramId;
 	}
 
 }
