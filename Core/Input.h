@@ -8,11 +8,19 @@ namespace Core
 	{
 	private:
 		GLFWwindow* WindowPtr;
+		bool isFullscreen;
+		int currentMonitor;
+		int monitorCount; 
+		GLFWmonitor** monitors;
+
 		Scene* Scene;
 
 		bool FreeLook;
 		glm::vec3 CameraRotation; 
 		glm::vec2 MousePosition;
+
+		void ToggleFreelook();
+		void RepositionWindow();
 
 	public:
 		Input(GLFWwindow* window);

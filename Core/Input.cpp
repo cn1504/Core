@@ -8,6 +8,17 @@ namespace Core
 		WindowPtr = window;
 		Scene = WindowMap[WindowPtr]->Scene;
 		FreeLook = false;
+
+		isFullscreen = false;
+
+		int currentMonitor = 0;
+		monitors = glfwGetMonitors(&monitorCount);
+		GLFWmonitor* prime = glfwGetPrimaryMonitor();
+		for (currentMonitor = 0; currentMonitor < monitorCount; currentMonitor++)
+		{
+			if (prime == monitors[currentMonitor])
+				break;
+		}
 	}
 
 	Input::~Input()
@@ -74,6 +85,7 @@ namespace Core
 			Scene->Camera->Entity->Transform.Position += glm::vec3(0.0f, -MoveSpeed * Time::Delta, 0.0f);
 		}
 
+
 		// Mouse
 		if (FreeLook)
 		{
@@ -81,8 +93,8 @@ namespace Core
 			glfwGetCursorPos(WindowPtr, &x, &y);
 			glm::vec2 CurrentMousePosition = glm::vec2(x, y);
 			glm::vec2 deltaP = CurrentMousePosition - MousePosition;
-			CameraRotation.y -= deltaP.x * 0.005f;
-			CameraRotation.x += deltaP.y * 0.005f;
+			CameraRotation.y -= deltaP.x * 0.003f;
+			CameraRotation.x += deltaP.y * 0.003f;
 			MousePosition = CurrentMousePosition;
 			Scene->Camera->Entity->Transform.Rotation = glm::quat(CameraRotation);
 		}
@@ -93,12 +105,68 @@ namespace Core
 	{
 		if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		{
-			FreeLook = !FreeLook;
-			glfwSetInputMode(WindowPtr, GLFW_CURSOR, (FreeLook) ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+			ToggleFreelook();
+		}
 
-			double x, y;
-			glfwGetCursorPos(WindowPtr, &x, &y);
-			MousePosition = glm::vec2(x, y);
+		else if (key == GLFW_KEY_ENTER && action == GLFW_PRESS && GLFW_MOD_ALT & mods)
+		{
+			isFullscreen = !isFullscreen;
+			RepositionWindow();
+		}
+
+		else if (key == GLFW_KEY_LEFT && action == GLFW_PRESS && GLFW_MOD_ALT & mods)
+		{
+			currentMonitor--;
+			if (currentMonitor < 0)
+				currentMonitor = monitorCount - 1;
+			RepositionWindow();
+		}
+
+		else if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS && GLFW_MOD_ALT & mods)
+		{
+			currentMonitor++;
+			if (currentMonitor == monitorCount)
+				currentMonitor = 0;
+			RepositionWindow();
+		}
+
+	}
+
+
+	void Input::ToggleFreelook()
+	{
+		FreeLook = !FreeLook;
+		glfwSetInputMode(WindowPtr, GLFW_CURSOR, (FreeLook) ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+
+		double x, y;
+		glfwGetCursorPos(WindowPtr, &x, &y);
+		MousePosition = glm::vec2(x, y);
+	}
+
+
+	void Input::RepositionWindow()
+	{
+		if (FreeLook)
+			ToggleFreelook();
+
+		if (!isFullscreen)
+		{
+			int xpos, ypos;
+			glfwGetMonitorPos(monitors[currentMonitor], &xpos, &ypos);
+			auto vm = glfwGetVideoMode(monitors[currentMonitor]);
+
+			glfwSetWindowSize(WindowPtr, Settings::Window::DefaultWidth, Settings::Window::DefaultHeight);
+			glfwSetWindowPos(WindowPtr, xpos + vm->width / 2 - Settings::Window::DefaultWidth / 2, ypos + vm->height / 2 - Settings::Window::DefaultHeight / 2);
+		}
+		else
+		{
+			int xpos, ypos;
+			glfwGetMonitorPos(monitors[currentMonitor], &xpos, &ypos);
+			auto vm = glfwGetVideoMode(monitors[currentMonitor]);
+
+			glfwSetWindowSize(WindowPtr, vm->width, vm->height);
+			glfwSetWindowPos(WindowPtr, xpos, ypos);
 		}
 	}
+
 }

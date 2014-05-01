@@ -12,6 +12,9 @@ namespace Core
 			extern int Y;
 			extern int Width;
 			extern int Height;
+
+			extern int DefaultWidth;
+			extern int DefaultHeight;
 		}
 
 		namespace Video {

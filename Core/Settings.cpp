@@ -10,6 +10,9 @@ namespace Core
 			int Y;
 			int Width;
 			int Height;
+
+			int DefaultWidth;
+			int DefaultHeight;
 		}
 
 		namespace Video {
@@ -56,6 +59,8 @@ namespace Core
 			// Initialize to default settings
 			Window::Width = 1280;
 			Window::Height = 720;
+			Window::DefaultWidth = 1280;
+			Window::DefaultHeight = 720;
 			Window::X = (glfwGetVideoMode(glfwGetPrimaryMonitor())->width - Window::Width) / 2;
 			Window::Y = (glfwGetVideoMode(glfwGetPrimaryMonitor())->height - Window::Height) / 2;
 
@@ -93,6 +98,8 @@ namespace Core
 					else if (setting == "WindowHeight") { Window::Height = std::stoi(value); }
 					else if (setting == "WindowPositionX") { Window::X = std::stoi(value); }
 					else if (setting == "WindowPositionY") { Window::Y = std::stoi(value); }
+					else if (setting == "DefaultWindowWidth") { Window::DefaultWidth = std::stoi(value); }
+					else if (setting == "DefaultWindowHeight") { Window::DefaultHeight = std::stoi(value); }
 
 					else if (setting == "FOVY") { Video::FOVY = std::stof(value); }
 					else if (setting == "MinDrawDistance") { Video::MinDrawDistance = std::stof(value); }
@@ -135,6 +142,8 @@ namespace Core
 				settingsFile << "WindowHeight" << ": " << Window::Height << std::endl;
 				settingsFile << "WindowPositionX" << ": " << Window::X << std::endl;
 				settingsFile << "WindowPositionY" << ": " << Window::Y << std::endl;
+				settingsFile << "DefaultWindowWidth" << ": " << Window::DefaultWidth << std::endl;
+				settingsFile << "DefaultWindowHeight" << ": " << Window::DefaultHeight << std::endl;
 
 				settingsFile << "FOVY" << ": " << Video::FOVY << std::endl;
 				settingsFile << "MinDrawDistance" << ": " << Video::MinDrawDistance << std::endl;
