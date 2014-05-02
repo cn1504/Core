@@ -95,6 +95,10 @@ namespace Core
 			glm::vec2 deltaP = CurrentMousePosition - MousePosition;
 			CameraRotation.y -= deltaP.x * 0.003f;
 			CameraRotation.x += deltaP.y * 0.003f;
+			if (CameraRotation.x > glm::pi<float>() / 2)
+				CameraRotation.x = glm::pi<float>() / 2;
+			if (CameraRotation.x < -glm::pi<float>() / 2)
+				CameraRotation.x = -glm::pi<float>() / 2;
 			MousePosition = CurrentMousePosition;
 			Scene->Camera->Entity->Transform.Rotation = glm::quat(CameraRotation);
 		}

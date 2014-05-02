@@ -9,23 +9,20 @@ in vec3 viewNormal;
 
 void main(void)
 {	
-	vec3 rayDirection = normalize(viewVertex);
+	float r = Radius;	
+	vec3 q0 = vec3(0.0, 0.0, 0.0);
+	vec3 v = normalize(viewVertex);
+	vec3 p = SpherePosition;
 	
-	float B = 2.0 * dot(rayDirection, -SpherePosition);
-	float C = dot(SpherePosition, SpherePosition) - (Radius * Radius);
-	
-	float det = (B * B) - (4 * C);
-	if(det < 0.0)
+	float sc = dot(v, p);
+	vec3 qc = q0 + sc*v;
+	vec3 wc = qc - p;
+	float d = length(wc);
+	if(d > r)
 		discard;
-		
-	float sqrtDet = sqrt(det);
-	float posT = (-B + sqrtDet)/2;
-	float negT = (-B - sqrtDet)/2;
 	
-	float intersectT = min(posT, negT);
-	vec3 cameraPos = rayDirection * intersectT;
+	vec3 qi = q0 + (sc - sqrt(r*r - d*d)) * v;
 	
-	 gl_FragData[1] = vec4(normalize(cameraPos - SpherePosition), 0.0);
-	
-	 gl_FragData[0] = DiffuseColor;
+	gl_FragData[1] = vec4((normalize(qi - p) + 1) * 0.5, 0.0);
+	gl_FragData[0] = DiffuseColor;
 }

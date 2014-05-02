@@ -8,5 +8,5 @@ in vec3 viewNormal;
 void main(void)
 {	
 	gl_FragData[0] = DiffuseColor;
-	gl_FragData[1] = vec4(viewNormal, 0.0);
+	gl_FragData[1] = vec4((normalize(viewNormal) + 1) * 0.5, 0.0);
 }

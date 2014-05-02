@@ -2,6 +2,7 @@
 #include "Window.h"
 #include "Box.h"
 #include "Sphere.h"
+#include "Cylinder.h"
 #include "Spinner.h"
 #include "Assets.h"
 
@@ -16,6 +17,7 @@ namespace Core
 		MeshShader = new Shader("Shaders/mesh.vert", "Shaders/material.frag");
 		FXAAShader = new Shader("Shaders/fspassthrough.vert", "Shaders/fxaa.frag");
 		SphereShader = new Shader("Shaders/mesh.vert", "Shaders/sphere.frag");
+		CylinderShader = new Shader("Shaders/mesh.vert", "Shaders/cylinder.frag");
 		Debug::GLError("ERROR: Could not complete shader compilation.");
 
 
@@ -25,9 +27,11 @@ namespace Core
 		c->AddComponent(Camera);
 		Entities.push_back(c);
 
+		Shapes::Box box(0.5f);
+		Shapes::Sphere sphere;
+		Shapes::Cylinder cylinder;
 
 		auto e = new Entity();
-		Shapes::Box box(0.5f);
 		e->AddComponent(box.GenerateMesh());
 		e->AddComponent(new Material());
 		e->AddComponent(new Test::Spinner());
@@ -41,10 +45,16 @@ namespace Core
 
 		e = new Entity();
 		e->Transform.Position = glm::vec3(0.0f, 2.0f, -2.0f);
-		Shapes::Sphere sphere;
 		e->AddComponent(sphere.GenerateMesh());
 		e->AddComponent(new Material());
 		e->GetComponent<Material>()->DiffuseColor = glm::vec3(0.0f, 0.5f, 1.0f);
+		Entities.push_back(e);
+
+		e = new Entity();
+		e->Transform.Position = glm::vec3(2.0f, 0.0f, 0.0f);
+		e->AddComponent(cylinder.GenerateMesh());
+		e->AddComponent(new Material());
+		e->GetComponent<Material>()->DiffuseColor = glm::vec3(0.7f, 0.2f, 1.0f);
 		Entities.push_back(e);
 
 		// Must be after camera is created
@@ -76,7 +86,6 @@ namespace Core
 
 		GeometryRB->MakeCurrent();
 		GeometryRB->Clear();
-		MeshShader->MakeCurrent();
 
 		glm::mat4 P = Camera->GetProjectionMatrix();
 		glm::mat4 V = Camera->GetViewMatrix();
@@ -101,11 +110,28 @@ namespace Core
 					r->EnableBuffers();
 					r->Render();
 					r->DisableBuffers();
+				}
+				else if (r == Assets::Meshes["UnitCylinder"])
+				{
+					CylinderShader->MakeCurrent();
 
-					MeshShader->MakeCurrent();
+					glUniformMatrix4fv(CylinderShader->GetUL("ModelViewProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(MVP));
+					glUniformMatrix4fv(CylinderShader->GetUL("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(MV));
+					glUniform4fv(CylinderShader->GetUL("DiffuseColor"), 1, glm::value_ptr(glm::vec4(e->GetComponent<Material>()->DiffuseColor, 1.0f)));
+					glUniform3fv(CylinderShader->GetUL("Direction"), 1, glm::value_ptr(glm::normalize(glm::vec3(V * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)))));
+					glUniform3fv(CylinderShader->GetUL("Center"), 1, glm::value_ptr(glm::vec3(V * glm::vec4(e->Transform.Position, 1.0f))));
+					glUniform1f(CylinderShader->GetUL("Length"), r->Entity->Transform.Scale.y);
+					glUniform1f(CylinderShader->GetUL("Radius1"), 0.5f);
+					glUniform1f(CylinderShader->GetUL("Radius2"), 0.5f);
+
+					r->EnableBuffers();
+					r->Render();
+					r->DisableBuffers();
 				}
 				else
 				{
+					MeshShader->MakeCurrent();
+
 					glUniformMatrix4fv(MeshShader->GetUL("ModelViewProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(MVP));
 					glUniformMatrix4fv(MeshShader->GetUL("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(MV));
 					glUniform4fv(MeshShader->GetUL("DiffuseColor"), 1, glm::value_ptr(glm::vec4(e->GetComponent<Material>()->DiffuseColor, 1.0f)));

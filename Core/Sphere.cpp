@@ -19,8 +19,12 @@ namespace Core
 
 		Mesh* Sphere::GenerateMesh()
 		{
-			Box box(0.5f);
-			return Assets::Meshes["UnitSphere"] = box.GenerateMesh();
+			if (Assets::Meshes.count("UnitSphere") == 0)
+			{
+				Box box(0.5f);
+				Assets::Meshes["UnitSphere"] = box.GenerateMesh();
+			}
+			return Assets::Meshes["UnitSphere"];
 		}
 
 	}

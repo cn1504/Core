@@ -13,9 +13,12 @@ namespace Core
 	{
 	private:
 		RenderBuffer* GeometryRB;
+
 		Shader* MeshShader;
 		Shader* FXAAShader;
 		Shader* SphereShader;
+		Shader* CylinderShader;
+
 		ScreenQuad SQuad;
 
 		std::vector<Entity*> Entities;
