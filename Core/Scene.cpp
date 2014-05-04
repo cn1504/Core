@@ -27,34 +27,38 @@ namespace Core
 		c->AddComponent(Camera);
 		Entities.push_back(c);
 
-		Shapes::Box box(0.5f);
+		Shapes::Box box; 
+		Assets::Meshes["Cube"] = box.GenerateMesh();
 		Shapes::Sphere sphere;
-		Shapes::Cylinder cylinder;
+		Sphere = Assets::Meshes["Sphere"] = sphere.GenerateMesh();
+		Shapes::Cylinder cylinder; 
+		Cylinder = Assets::Meshes["Cylinder"] = cylinder.GenerateMesh();
 
+		Assets::CreateStandardMaterials();
+		
 		auto e = new Entity();
-		e->AddComponent(box.GenerateMesh());
-		e->AddComponent(new Material());
-		e->AddComponent(new Test::Spinner());
+		e->AddComponent(Assets::Meshes["Cube"]);
+		e->AddComponent(Assets::Materials["Concrete"]);
+//		e->AddComponent(new Test::Spinner());
 		Entities.push_back(e);
 		
 		e = new Entity();
-		e->Transform.Position = glm::vec3(0.0f, 2.0f, -1.0f);
-		e->AddComponent(box.GenerateMesh());
-		e->AddComponent(new Material());
+		e->Transform.Position = glm::vec3(0.0f, 2.0f, 0.0f);
+		e->AddComponent(Assets::Meshes["Cube"]);
+		e->AddComponent(Assets::Materials["Silver"]);
 		Entities.push_back(e);
 
 		e = new Entity();
 		e->Transform.Position = glm::vec3(0.0f, 2.0f, -2.0f);
-		e->AddComponent(sphere.GenerateMesh());
-		e->AddComponent(new Material());
-		e->GetComponent<Material>()->DiffuseColor = glm::vec3(0.0f, 0.5f, 1.0f);
+		e->AddComponent(Assets::Meshes["Sphere"]);
+		e->AddComponent(Assets::Materials["Gold"]);
 		Entities.push_back(e);
 
 		e = new Entity();
 		e->Transform.Position = glm::vec3(2.0f, 0.0f, 0.0f);
-		e->AddComponent(cylinder.GenerateMesh());
-		e->AddComponent(new Material());
-		e->GetComponent<Material>()->DiffuseColor = glm::vec3(0.7f, 0.2f, 1.0f);
+		e->Transform.Scale = glm::vec3(1.0f, 2.0f, 1.0f);
+		e->AddComponent(Assets::Meshes["Cylinder"]);
+		e->AddComponent(Assets::Materials["Copper"]);
 		Entities.push_back(e);
 
 		// Must be after camera is created
@@ -75,6 +79,8 @@ namespace Core
 		{
 			delete e;
 		}
+
+		Assets::Clear();
 	}
 
 
@@ -97,7 +103,7 @@ namespace Core
 				glm::mat4 MVP = P * MV;
 
 				auto r = e->GetRenderable();
-				if (r == Assets::Meshes["UnitSphere"])
+				if (r == Sphere)
 				{
 					SphereShader->MakeCurrent();
 
@@ -105,13 +111,13 @@ namespace Core
 					glUniformMatrix4fv(SphereShader->GetUL("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(MV));
 					glUniform4fv(SphereShader->GetUL("DiffuseColor"), 1, glm::value_ptr(glm::vec4(e->GetComponent<Material>()->DiffuseColor, 1.0f)));
 					glUniform3fv(SphereShader->GetUL("SpherePosition"), 1, glm::value_ptr(glm::vec3(V * glm::vec4(e->Transform.Position, 1.0f))));
-					glUniform1f(SphereShader->GetUL("Radius"), 0.5f);
+					glUniform1f(SphereShader->GetUL("Radius"), r->Entity->Transform.Scale.x / 2);
 
 					r->EnableBuffers();
 					r->Render();
 					r->DisableBuffers();
 				}
-				else if (r == Assets::Meshes["UnitCylinder"])
+				else if (r == Cylinder)
 				{
 					CylinderShader->MakeCurrent();
 
@@ -121,8 +127,8 @@ namespace Core
 					glUniform3fv(CylinderShader->GetUL("Direction"), 1, glm::value_ptr(glm::normalize(glm::vec3(V * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)))));
 					glUniform3fv(CylinderShader->GetUL("Center"), 1, glm::value_ptr(glm::vec3(V * glm::vec4(e->Transform.Position, 1.0f))));
 					glUniform1f(CylinderShader->GetUL("Length"), r->Entity->Transform.Scale.y);
-					glUniform1f(CylinderShader->GetUL("Radius1"), 0.5f);
-					glUniform1f(CylinderShader->GetUL("Radius2"), 0.5f);
+					glUniform1f(CylinderShader->GetUL("Radius1"), r->Entity->Transform.Scale.x / 2);
+					glUniform1f(CylinderShader->GetUL("Radius2"), r->Entity->Transform.Scale.x / 2);
 
 					r->EnableBuffers();
 					r->Render();

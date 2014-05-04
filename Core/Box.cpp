@@ -1,15 +1,13 @@
 #include "Box.h"
+#include "Assets.h"
 
 namespace Core
 {
 	namespace Shapes
 	{
 		
-		Box::Box(float cubeHalfLength) : Box(glm::vec3(cubeHalfLength, cubeHalfLength, cubeHalfLength))	{}
-		Box::Box(float halfLengthX, float halfLengthY, float halfLengthZ) : Box(glm::vec3(halfLengthX, halfLengthY, halfLengthZ)) {}
-		Box::Box(glm::vec3 halfLengths)
+		Box::Box()
 		{
-			HalfLengths = halfLengths;
 		}
 
 
@@ -20,6 +18,8 @@ namespace Core
 
 		Mesh* Box::GenerateMesh()
 		{
+			glm::vec3 HalfLengths(0.5, 0.5, 0.5);
+
 			std::vector<unsigned short> indices;
 			std::vector<glm::vec3> indexed_vertices;
 			std::vector<glm::vec3> indexed_normals;
@@ -130,5 +130,12 @@ namespace Core
 
 			return new Mesh(indices, indexed_vertices, indexed_normals);
 		}
+
+
+		float Box::CalculateVolume(glm::vec3 scale)
+		{
+			return 8.0f * scale.x * scale.y * scale.z;
+		}
+
 	}
 }

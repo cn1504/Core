@@ -81,6 +81,7 @@
     <ClCompile Include="Cylinder.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="FreeBody.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -104,8 +105,10 @@
     <ClInclude Include="Core.h" />
     <ClInclude Include="Cylinder.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="DynamicsWorld.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Exceptions.h" />
+    <ClInclude Include="FreeBody.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />

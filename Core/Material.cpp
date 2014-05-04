@@ -1,11 +1,15 @@
 #include "Material.h"
+#include "Assets.h"
 
 namespace Core
 {
 
-	Material::Material()
+	Material::Material(std::string name)
 	{
+		Assets::Materials[name] = this;
+
 		DiffuseColor = glm::vec3(1.0f);
+		Density = 0.0f;
 	}
 
 

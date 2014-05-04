@@ -16,6 +16,7 @@ namespace Core
 
 	public:
 		Mesh(std::vector<unsigned short> indices, std::vector<glm::vec3> indexed_vertices, std::vector<glm::vec3> indexed_normals);
+		Mesh(Mesh* other);
 		virtual ~Mesh();
 		virtual void Load();
 		virtual void Update();

@@ -10,16 +10,12 @@ namespace Core
 		class Box
 			: public Shape
 		{
-		private:
-			glm::vec3 HalfLengths;
-
 		public:
-			Box(float cubeHalfLength);
-			Box(float halfLengthX, float halfLengthY, float halfLengthZ);
-			Box(glm::vec3 halfLengths);
+			Box();
 			virtual ~Box();
 
 			virtual Mesh* GenerateMesh();
+			virtual float CalculateVolume(glm::vec3 scale);
 		};
 
 	}

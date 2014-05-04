@@ -9,5 +9,8 @@ namespace Core
 	{
 		extern std::unordered_map<std::string, Mesh*> Meshes;
 		extern std::unordered_map<std::string, Material*> Materials;
+
+		void CreateStandardMaterials();
+		void Clear();
 	}
 }

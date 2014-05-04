@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Assets.h"
 
 namespace Core
 {
@@ -23,6 +24,14 @@ namespace Core
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ElementBuffer);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
 		Debug::GLError("ERROR: Could not generate the Indices buffer object.");
+	}
+
+
+	Mesh::Mesh(Mesh* other)
+	{
+		VertexBuffer = other->VertexBuffer;
+		NormalBuffer = other->NormalBuffer;
+		ElementBuffer = other->ElementBuffer;
 	}
 
 

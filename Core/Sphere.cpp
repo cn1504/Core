@@ -19,12 +19,15 @@ namespace Core
 
 		Mesh* Sphere::GenerateMesh()
 		{
-			if (Assets::Meshes.count("UnitSphere") == 0)
-			{
-				Box box(0.5f);
-				Assets::Meshes["UnitSphere"] = box.GenerateMesh();
-			}
-			return Assets::Meshes["UnitSphere"];
+			Box box;
+			return box.GenerateMesh();
+		}
+
+
+		float Sphere::CalculateVolume(glm::vec3 scale)
+		{
+			float r = scale.x / 2.0f;
+			return (4.0f / 3.0f) * glm::pi<float>() * r * r * r;
 		}
 
 	}

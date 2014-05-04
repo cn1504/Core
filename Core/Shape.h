@@ -10,6 +10,7 @@ namespace Core
 	public:
 		virtual ~Shape() {}
 		virtual Mesh* GenerateMesh() = 0;
+		virtual float CalculateVolume(glm::vec3 scale) = 0;
 	};
 
 }

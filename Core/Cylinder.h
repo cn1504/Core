@@ -15,6 +15,7 @@ namespace Core
 			virtual ~Cylinder();
 
 			virtual Mesh* GenerateMesh();
+			virtual float CalculateVolume(glm::vec3 scale);
 		};
 
 	}

@@ -22,6 +22,8 @@ namespace Core
 		ScreenQuad SQuad;
 
 		std::vector<Entity*> Entities;
+		Mesh* Sphere;
+		Mesh* Cylinder;
 
 	public:
 		Camera* Camera;

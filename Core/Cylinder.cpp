@@ -19,12 +19,15 @@ namespace Core
 
 		Mesh* Cylinder::GenerateMesh()
 		{
-			if (Assets::Meshes.count("UnitCylinder") == 0)
-			{
-				Box box(0.5f);
-				Assets::Meshes["UnitCylinder"] = box.GenerateMesh();
-			}
-			return Assets::Meshes["UnitCylinder"];
+			Box box;
+			return box.GenerateMesh();
+		}
+
+
+		float Cylinder::CalculateVolume(glm::vec3 scale)
+		{
+			float r = scale.x / 2.0f;
+			return glm::pi<float>() * r * r * scale.y;
 		}
 
 	}

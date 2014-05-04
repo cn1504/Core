@@ -2,6 +2,9 @@
 #include "Renderable.h"
 #include <typeinfo>
 
+#include "Mesh.h"
+#include "Material.h"
+
 namespace Core
 {
 
@@ -14,7 +17,17 @@ namespace Core
 	Entity::~Entity()
 	{
 		for (auto c : Components)
+		{
+			Mesh* r = dynamic_cast<Mesh*>(c);
+			if (r != nullptr)
+				continue;
+
+			Material* s = dynamic_cast<Material*>(c);
+			if (s != nullptr)
+				continue;
+
 			delete c;
+		}
 	}
 
 
