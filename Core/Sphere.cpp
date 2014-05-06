@@ -30,5 +30,11 @@ namespace Core
 			return (4.0f / 3.0f) * glm::pi<float>() * r * r * r;
 		}
 
+
+		glm::vec3 Sphere::CalculateCenterOfMass(glm::vec3 scale)
+		{
+			return glm::vec3(0.0f, 0.0f, 0.0f);
+		}
+
 	}
 }

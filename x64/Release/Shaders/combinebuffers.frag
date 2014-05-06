@@ -1,40 +1,29 @@
-#version 330
+#version 130
 
-uniform sampler2D diffuseTex;
-uniform sampler2D specularColorTex;
-uniform sampler2D emissiveTex;
-uniform sampler2D specularTex;
-uniform sampler2D glowmapTex;
-uniform sampler2D skyboxTexture;
-uniform vec3 ambientLight; 
-uniform float dynamicRange;
+uniform sampler2D DiffuseTexture;
+uniform sampler2D SpecularTexture;
+uniform sampler2D DiffuseLightTexture;
+uniform sampler2D SpecularLightTexture;
+uniform vec3 AmbientLight; 
 
-in Vertex {
-	vec2 texCoord;
-} IN;
+in vec2 texCoord;
 
 out vec4 outColor;
 
 void main(void)
 {
-	vec3 diffuse   = texture(diffuseTex, IN.texCoord).xyz;
-	//vec3 specularC = texture(specularColorTex, IN.texCoord).xyz;
-	//vec3 light     = texture(emissiveTex, IN.texCoord).xyz;
-	//vec3 specular  = texture(specularTex, IN.texCoord).xyz;
-	//vec3 glow      = texture(glowmapTex, IN.texCoord).xyz;
+	vec3 diffuse   = texture(DiffuseTexture, texCoord).xyz;
+	vec3 specularC = texture(SpecularTexture, texCoord).xyz;
+	vec3 light     = texture(DiffuseLightTexture, texCoord).xyz;
+	vec3 specular  = texture(SpecularLightTexture, texCoord).xyz;
 	
-	//vec3 baseColor = diffuse * ambientLight + 			// ambient
-	//				 diffuse * light * dynamicRange;		// diffused light
+	vec3 baseColor = diffuse * AmbientLight + 				// ambient
+					 diffuse * light;						// diffused light
 	
-	//outColor.xyz   = (baseColor == vec3(0.0)) ? texture(skyboxTexture, IN.texCoord).xyz : baseColor;
+	baseColor     += specularC * specular;					// specular light
 	
-	vec3 baseColor = diffuse; // diffused light
 	outColor.xyz   = baseColor;
-					 
-	//outColor.xyz += specular * specularC * dynamicRange;	// specular
-	//outColor.xyz += glow;
-	outColor.a    = 1.0;
+	outColor.a     = 1.0;	
 	
-	
-	//outColor = vec4(glow, 1.0);
+	//outColor = vec4(specular, 1.0);
 }

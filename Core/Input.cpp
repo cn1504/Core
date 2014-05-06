@@ -134,6 +134,11 @@ namespace Core
 			RepositionWindow();
 		}
 
+		else if (key == GLFW_KEY_X && action == GLFW_PRESS)
+		{
+			Scene->PhysicsWorld->Gravity *= -1.0f;
+		}
+
 	}
 
 

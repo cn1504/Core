@@ -11,6 +11,7 @@ namespace Core
 		virtual ~Shape() {}
 		virtual Mesh* GenerateMesh() = 0;
 		virtual float CalculateVolume(glm::vec3 scale) = 0;
+		virtual glm::vec3 CalculateCenterOfMass(glm::vec3 scale) = 0;
 	};
 
 }

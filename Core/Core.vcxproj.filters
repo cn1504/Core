@@ -57,16 +57,25 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Box.cpp">
-      <Filter>Source Files\Shapes</Filter>
-    </ClCompile>
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Assets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="FreeBody.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="LightSource.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
@@ -75,20 +84,17 @@
     <ClCompile Include="Spinner.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
-    <ClCompile Include="Sphere.cpp">
+    <ClCompile Include="Box.cpp">
       <Filter>Source Files\Shapes</Filter>
-    </ClCompile>
-    <ClCompile Include="Assets.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Cylinder.cpp">
       <Filter>Source Files\Shapes</Filter>
     </ClCompile>
-    <ClCompile Include="FreeBody.cpp">
-      <Filter>Source Files\Components</Filter>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Source Files\Shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicsWorld.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,9 +131,6 @@
     <ClInclude Include="Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Box.h">
-      <Filter>Header Files\Shapes</Filter>
-    </ClInclude>
     <ClInclude Include="Entity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -140,35 +143,41 @@
     <ClInclude Include="Renderable.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="Shape.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Spinner.h">
+    <ClInclude Include="Assets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicsWorld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeBody.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="LightSource.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Sphere.h">
-      <Filter>Header Files\Shapes</Filter>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Assets.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Spinner.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Box.h">
+      <Filter>Header Files\Shapes</Filter>
     </ClInclude>
     <ClInclude Include="Cylinder.h">
       <Filter>Header Files\Shapes</Filter>
     </ClInclude>
-    <ClInclude Include="FreeBody.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="DynamicsWorld.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Sphere.h">
+      <Filter>Header Files\Shapes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

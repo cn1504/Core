@@ -30,5 +30,11 @@ namespace Core
 			return glm::pi<float>() * r * r * scale.y;
 		}
 
+
+		glm::vec3 Cylinder::CalculateCenterOfMass(glm::vec3 scale)
+		{
+			return glm::vec3(0.0f, 0.0f, 0.0f);
+		}
+
 	}
 }

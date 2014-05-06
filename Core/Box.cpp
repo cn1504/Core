@@ -80,52 +80,52 @@ namespace Core
 			indexed_normals.push_back(glm::vec3(0.0f, -1.0f, 0.0f));
 			indexed_normals.push_back(glm::vec3(0.0f, 0.0f, -1.0f));
 
-			// Face 1
-			indices.push_back(1);
-			indices.push_back(10);
+			// Face 1 - Y+
 			indices.push_back(4);
-			indices.push_back(4);
-			indices.push_back(10);
 			indices.push_back(7);
+			indices.push_back(1);
+			indices.push_back(1);
+			indices.push_back(7);
+			indices.push_back(10);
 
-			// Face 2
+			// Face 2 - Y-
+			indices.push_back(16);
 			indices.push_back(13);
-			indices.push_back(16);
-			indices.push_back(22);
-			indices.push_back(22);
-			indices.push_back(16);
 			indices.push_back(19);
+			indices.push_back(19);
+			indices.push_back(13);
+			indices.push_back(22);
 
-			// Face 3
+			// Face 3 - Z-
 			indices.push_back(2);
-			indices.push_back(14);
-			indices.push_back(11);
 			indices.push_back(11);
 			indices.push_back(14);
+			indices.push_back(14);
+			indices.push_back(11);
 			indices.push_back(23);
 
-			// Face 4
+			// Face 4 - X-
+			indices.push_back(15);
 			indices.push_back(3);
-			indices.push_back(15);
-			indices.push_back(0);
-			indices.push_back(0);
-			indices.push_back(15);
 			indices.push_back(12);
+			indices.push_back(12);
+			indices.push_back(3);
+			indices.push_back(0);
 
-			// Face 5
+			// Face 5 - Z+
 			indices.push_back(5);
-			indices.push_back(8);
-			indices.push_back(17);
 			indices.push_back(17);
 			indices.push_back(8);
+			indices.push_back(8);
+			indices.push_back(17);
 			indices.push_back(20);
 
-			// Face 6
+			// Face 6 - X+
 			indices.push_back(6);
-			indices.push_back(9);
-			indices.push_back(18);
 			indices.push_back(18);
 			indices.push_back(9);
+			indices.push_back(9);
+			indices.push_back(18);
 			indices.push_back(21);
 
 			return new Mesh(indices, indexed_vertices, indexed_normals);
@@ -135,6 +135,12 @@ namespace Core
 		float Box::CalculateVolume(glm::vec3 scale)
 		{
 			return 8.0f * scale.x * scale.y * scale.z;
+		}
+
+
+		glm::vec3 Box::CalculateCenterOfMass(glm::vec3 scale)
+		{
+			return glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 
 	}
