@@ -51,6 +51,7 @@ namespace Core
 
 	void Window::LoopUntilClosed()
 	{
+		Time::NextUpdate(HasFocus);
 		while (!glfwWindowShouldClose(WindowPtr))
 		{
 			Scene->Update();

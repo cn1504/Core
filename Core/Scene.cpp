@@ -56,16 +56,21 @@ namespace Core
 		Entities.push_back(c);
 
 		auto e = new Entity();
-		e->Transform.Position = glm::vec3(0.0f, 0.5f, 0.0);
+		e->Transform.Position = glm::vec3(-1.0f, 0.5f, -1.0);
 		e->AddComponent(Assets::Meshes["Cube"]);
 		e->AddComponent(Assets::Materials["Silver"]);
-//		e->AddComponent(new Test::Spinner());
 		Entities.push_back(e);
 		
 		e = new Entity();
 		e->Transform.Position = glm::vec3(0.0f, 1.5f, 0.0f);
 		e->AddComponent(Assets::Meshes["Cube"]);
 		e->AddComponent(Assets::Materials["Brass"]);
+		auto fb = new FreeBody(PhysicsWorld);
+		fb->SetCollisionShape(new Shapes::Box);
+		fb->SetMaterial(Assets::Materials["Copper"]);
+		e->AddComponent(fb);
+		fb->CalculateMass();
+		e->AddComponent(new Test::Spinner());
 		Entities.push_back(e);
 
 		e = new Entity();
@@ -75,15 +80,16 @@ namespace Core
 		Entities.push_back(e);
 
 		e = new Entity();
-		e->Transform.Position = glm::vec3(2.0f, 1.0f, 0.0f);
+		e->Transform.Position = glm::vec3(2.0f, 1.0f, 1.0f);
 		e->Transform.Scale = glm::vec3(1.0f, 2.0f, 1.0f);
 		e->AddComponent(Assets::Meshes["Cylinder"]);
 		e->AddComponent(Assets::Materials["Copper"]);
-		auto fb = new FreeBody(PhysicsWorld);
+		fb = new FreeBody(PhysicsWorld);
 		fb->SetCollisionShape(new Shapes::Cylinder);
 		fb->SetMaterial(Assets::Materials["Copper"]);
 		e->AddComponent(fb);
 		fb->CalculateMass();
+		fb->ApplyCenterForce(glm::vec3(0.0, 9.8*0.1*fb->GetMass(), 0.0));
 		Entities.push_back(e);
 
 		e = new Entity();
@@ -96,7 +102,7 @@ namespace Core
 
 		e = new Entity();
 		e->Transform.Position = glm::vec3(-2.0f, 1.5f, 0.0);
-		e->Transform.Scale = glm::vec3(10.0f, 10.0f, 10.0f);
+		e->Transform.Scale = glm::vec3(15.0f, 15.0f, 15.0f);
 		e->AddComponent(new LightSource(glm::vec3(1.0f, 1.0f, 1.0f)));
 		Entities.push_back(e);
 
@@ -243,6 +249,7 @@ namespace Core
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE);	// Additive Blending
+		glCullFace(GL_FRONT);
 
 		for (auto e : Entities)
 		{
@@ -259,17 +266,6 @@ namespace Core
 				glUniform3fv(LightShader->GetUL("LightPosition"), 1, glm::value_ptr(glm::vec3(V * glm::vec4(e->Transform.Position, 1.0))));
 				float lightRadius = e->Transform.Scale.x / 2;
 				glUniform1f(LightShader->GetUL("LightRadius"), lightRadius);
-
-				
-				auto c = glm::inverse(M) * glm::vec4(Camera->Entity->Transform.Position, 1.0);
-				if ((c.x <= 0.5 && c.x >= -0.5) && (c.y <= 0.5 && c.y >= -0.5) && (c.z <= 0.5 && c.z >= -0.5))
-				{
-					glCullFace(GL_FRONT);	//camera is inside the light volume! 
-				}
-				else
-				{
-					glCullFace(GL_BACK);
-				}
 
 				Cube->EnableBuffers();
 				Cube->Render();

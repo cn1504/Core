@@ -17,10 +17,20 @@ namespace Core
 		Shape* Shape;
 		Material* Material;
 
-		std::unordered_map<std::string, glm::vec3> Forces;
-		std::unordered_map<std::string, glm::vec3> Torques;
-		glm::vec3 Impulse;
-		float Mass;
+		glm::vec3 sumForces;
+		glm::vec3 sumTorques;
+		glm::vec3 accGravity;
+		float invMass;
+		glm::vec3 invInertia;
+
+		glm::vec3 Velocity;
+		glm::vec3 AngularVelocity;
+
+		glm::vec3 LastPosition;
+		glm::vec3 NextPosition;
+
+		glm::quat LastRotation;
+		glm::quat NextRotation;
 		
 	public:
 		FreeBody(DynamicsWorld* world, float mass = 0.0f);
@@ -33,15 +43,19 @@ namespace Core
 
 		void CalculateMass();
 		float GetMass();
+		void SetGravity(const glm::vec3& g);
 
-		void AddForce(std::string id, glm::vec3 force);
-		void AddImpulse(glm::vec3 force);
+		void IntegrateForward(float timestep);
+		void Interpolate(float lerp);
 
-		glm::vec3 CalculateTotalImpulse(glm::vec3 ExternalForces, float TimeStep);
+		void ApplyForce(const glm::vec3& force, const glm::vec3& location);
+		void ApplyCenterForce(glm::vec3 force);
 
-		glm::vec3 Velocity;	// ReadOnly
-		glm::vec3 LastPosition;
-		glm::vec3 NextPosition;
+		void ApplyImpulse(const glm::vec3& force, const glm::vec3& location);
+		void ApplyCenterImpulse(glm::vec3 force);
+
+		void ApplyTorque(const glm::vec3& torque);
+		void ApplyTorqueImpulse(const glm::vec3& torque);
 	};
 
 }

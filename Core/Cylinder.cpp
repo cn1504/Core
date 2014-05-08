@@ -36,5 +36,13 @@ namespace Core
 			return glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 
+
+		glm::vec3 Cylinder::CalculateInertia(glm::vec3 scale)
+		{
+			float t1 = (1.0f / 12.0f) * scale.y * scale.y + (0.25f) * scale.x * scale.x;
+			float t2 = 0.5f * scale.x;
+			return glm::vec3(t1, t2, t1);
+		}
+
 	}
 }

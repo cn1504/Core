@@ -2,6 +2,7 @@
 #include "Core.h"
 #include "Component.h"
 #include "Material.h"
+#include "FreeBody.h"
 
 namespace Test
 {
@@ -10,7 +11,9 @@ namespace Test
 		public Core::Component
 	{
 	private:
-		Core::Material* mat;
+		Core::FreeBody* FB;
+		float TimeSinceLastImpulse;
+		int i;
 
 	public:
 		Spinner();

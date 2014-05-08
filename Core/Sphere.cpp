@@ -36,5 +36,12 @@ namespace Core
 			return glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 
+
+		glm::vec3 Sphere::CalculateInertia(glm::vec3 scale)
+		{
+			float t = (0.4f) * scale.x * scale.x;
+			return glm::vec3(t, t, t);
+		}
+
 	}
 }

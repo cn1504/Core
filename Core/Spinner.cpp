@@ -15,14 +15,31 @@ namespace Test
 
 	void Spinner::Load()
 	{
-		mat = Entity->GetComponent<Core::Material>();
+		FB = Entity->GetComponent<Core::FreeBody>();
+		TimeSinceLastImpulse = 0.0f;
+		i = 0;
+		FB->ApplyCenterForce(glm::vec3(0, 9.8*0.1 * FB->GetMass(), 0));
 	}
 
 
 	void Spinner::Update()
 	{
-		Entity->Transform.Rotation = Entity->Transform.Rotation * glm::quat(glm::vec3(1.0f, 1.0f, 0.0f) * Core::Time::Delta);
-		mat->DiffuseColor = glm::vec3((glm::sin(Core::Time::Elapsed) + 1.0f) * 0.5f, 0.5f, 0.0f);
+		TimeSinceLastImpulse += Core::Time::Delta;
+		if (TimeSinceLastImpulse > 1.0f)
+		{
+			if (i == 0)
+				FB->ApplyImpulse(glm::vec3(0, 0.98, 0) * FB->GetMass(), glm::vec3(0.3, 0.0, 0.3));
+			if (i == 1)
+				FB->ApplyImpulse(glm::vec3(0, -0.98, 0) * FB->GetMass(), glm::vec3(0.3, 0.0, 0.3));
+			if (i == 2)
+				FB->ApplyImpulse(glm::vec3(0, -0.98, 0) * FB->GetMass(), glm::vec3(0.3, 0.0, -0.3));
+			if (i == 3)
+				FB->ApplyImpulse(glm::vec3(0, 0.98, 0) * FB->GetMass(), glm::vec3(0.3, 0.0, -0.3));
+
+			i = (i + 1) % 4;
+
+			TimeSinceLastImpulse -= 1.0f;
+		}
 	}
 
 }

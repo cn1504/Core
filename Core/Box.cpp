@@ -143,5 +143,11 @@ namespace Core
 			return glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 
+		
+		glm::vec3 Box::CalculateInertia(glm::vec3 scale)
+		{
+			return (1.0f / 12.0f) * glm::vec3(scale.y*scale.y + scale.z*scale.z, scale.x*scale.x + scale.z*scale.z, scale.x*scale.x + scale.y*scale.y);
+		}
+
 	}
 }

@@ -6,6 +6,7 @@ namespace Core
 	DynamicsWorld::DynamicsWorld(float timestep)
 	{
 		TimeStep = timestep;
+		TimeSinceUpdate = 0.0f;
 	}
 
 	DynamicsWorld::~DynamicsWorld()
@@ -20,15 +21,12 @@ namespace Core
 	void DynamicsWorld::Update()
 	{
 		TimeSinceUpdate += Time::Delta;
-		if (TimeSinceUpdate > TimeStep)
+		while (TimeSinceUpdate > TimeStep)
 		{
 			for (auto b : FreeBodies)
 			{
-				glm::vec3 impulse = b->CalculateTotalImpulse(glm::vec3(0.0f,0.0f,0.0f), TimeStep);
-				glm::vec3 a = impulse / b->GetMass() + Gravity;
-				b->Velocity += a * TimeStep;
-				b->LastPosition = b->NextPosition;
-				b->NextPosition += b->Velocity * TimeStep;
+				b->SetGravity(Gravity);
+				b->IntegrateForward(TimeStep);
 			}
 
 			TimeSinceUpdate -= TimeStep;
@@ -37,7 +35,7 @@ namespace Core
 		float lerp = TimeSinceUpdate / TimeStep;
 		for (auto b : FreeBodies)
 		{
-			b->Entity->Transform.Position = lerp * b->NextPosition + (1.0f - lerp) * b->LastPosition;
+			b->Interpolate(lerp);
 		}
 	}
 

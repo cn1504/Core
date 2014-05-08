@@ -22,6 +22,7 @@ namespace Core
 		void AddBody(FreeBody* body);
 
 		void Update();
+		void StartSimulation();
 	};
 
 }
