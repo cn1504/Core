@@ -25,7 +25,7 @@ namespace Test
 	void Spinner::Update()
 	{
 		TimeSinceLastImpulse += Core::Time::Delta;
-		if (TimeSinceLastImpulse > 1.0f)
+		while (TimeSinceLastImpulse > 1.0f)
 		{
 			if (i == 0)
 				FB->ApplyImpulse(glm::vec3(0, 0.98, 0) * FB->GetMass(), glm::vec3(0.3, 0.0, 0.3));

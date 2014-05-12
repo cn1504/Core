@@ -20,18 +20,27 @@ namespace Core
 
 	void DynamicsWorld::Update()
 	{
+		// Predict next body positions
 		TimeSinceUpdate += Time::Delta;
 		while (TimeSinceUpdate > TimeStep)
 		{
+			TimeSinceUpdate -= TimeStep;
+
 			for (auto b : FreeBodies)
 			{
 				b->SetGravity(Gravity);
 				b->IntegrateForward(TimeStep);
 			}
+			
 
-			TimeSinceUpdate -= TimeStep;
+			// Detect collisions
+			for (auto b : FreeBodies)
+			{
+			}
 		}
 		
+		
+		// Interpolate current position for this frame
 		float lerp = TimeSinceUpdate / TimeStep;
 		for (auto b : FreeBodies)
 		{

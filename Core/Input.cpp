@@ -3,10 +3,10 @@
 
 namespace Core
 {
-	Input::Input(GLFWwindow* window)
+	Input::Input(Core::Window* window, GLFWwindow* ptr)
 	{
-		WindowPtr = window;
-		Scene = WindowMap[WindowPtr]->Scene;
+		Window = window;
+		WindowPtr = ptr;
 		FreeLook = false;
 
 		isFullscreen = false;
@@ -19,6 +19,23 @@ namespace Core
 			if (prime == monitors[currentMonitor])
 				break;
 		}
+
+		JoystickCount = 0;
+		for (int i = 0; i < 16; i++)
+		{
+			if (glfwJoystickPresent(GLFW_JOYSTICK_1 + i))
+			{
+				JoystickCount++;
+				Joystick = GLFW_JOYSTICK_1 + i;
+			}
+		}
+
+		if (Settings::Misc::VerboseLogging)
+		{
+			Debug::Log("Joystick count: " + std::to_string(JoystickCount));
+			Debug::Log("Current joystick: " + std::to_string(Joystick));
+			Debug::Log("");
+		}
 	}
 
 	Input::~Input()
@@ -28,61 +45,57 @@ namespace Core
 
 	void Input::Update()
 	{
-		glm::mat4 camM = Scene->Camera->Entity->Transform.ToMatrix();
+		glm::mat4 camM = Camera->Transform.ToMatrix();
 		float MoveSpeed = 5.0f;
 
 		if (glfwGetKey(WindowPtr, GLFW_KEY_A) == 1)
 		{
-			Scene->Camera->Entity->Transform.Position += Scene->Camera->Entity->Transform.Rotation * (glm::vec3(MoveSpeed * Time::Delta, 0.0f, 0.0f));
+			Camera->Transform.Position += Camera->Transform.Rotation * (glm::vec3(MoveSpeed * Time::Delta, 0.0f, 0.0f));
 		}
 
 		if (glfwGetKey(WindowPtr, GLFW_KEY_D) == 1)
 		{
-			Scene->Camera->Entity->Transform.Position += Scene->Camera->Entity->Transform.Rotation * (glm::vec3(-MoveSpeed * Time::Delta, 0.0f, 0.0f));
+			Camera->Transform.Position += Camera->Transform.Rotation * (glm::vec3(-MoveSpeed * Time::Delta, 0.0f, 0.0f));
 		}
 
 		if (glfwGetKey(WindowPtr, GLFW_KEY_W) == 1)
 		{
-			Scene->Camera->Entity->Transform.Position += Scene->Camera->Entity->Transform.Rotation * (glm::vec3(0.0f, 0.0f, MoveSpeed * Time::Delta));
+			Camera->Transform.Position += Camera->Transform.Rotation * (glm::vec3(0.0f, 0.0f, MoveSpeed * Time::Delta));
 		}
 
 		if (glfwGetKey(WindowPtr, GLFW_KEY_S) == 1)
 		{
-			Scene->Camera->Entity->Transform.Position += Scene->Camera->Entity->Transform.Rotation * (glm::vec3(0.0f, 0.0f, -MoveSpeed * Time::Delta));
+			Camera->Transform.Position += Camera->Transform.Rotation * (glm::vec3(0.0f, 0.0f, -MoveSpeed * Time::Delta));
 		}
 
 		if (glfwGetKey(WindowPtr, GLFW_KEY_LEFT) == 1)
 		{
 			CameraRotation.y += 0.5f * Time::RealtimeDelta;
-			Scene->Camera->Entity->Transform.Rotation = glm::quat(CameraRotation);
 		}
 
 		if (glfwGetKey(WindowPtr, GLFW_KEY_RIGHT) == 1)
 		{
 			CameraRotation.y -= 0.5f * Time::RealtimeDelta;
-			Scene->Camera->Entity->Transform.Rotation = glm::quat(CameraRotation);
 		}
 	
 		if (glfwGetKey(WindowPtr, GLFW_KEY_UP) == 1)
 		{
 			CameraRotation.x -= 0.5f * Time::RealtimeDelta;
-			Scene->Camera->Entity->Transform.Rotation = glm::quat(CameraRotation);
 		}
 
 		if (glfwGetKey(WindowPtr, GLFW_KEY_DOWN) == 1)
 		{
 			CameraRotation.x += 0.5f * Time::RealtimeDelta;
-			Scene->Camera->Entity->Transform.Rotation = glm::quat(CameraRotation);
 		}
 
 		if (glfwGetKey(WindowPtr, GLFW_KEY_SPACE) == 1)
 		{
-			Scene->Camera->Entity->Transform.Position += glm::vec3(0.0f, MoveSpeed * Time::Delta, 0.0f);
+			Camera->Transform.Position += glm::vec3(0.0f, MoveSpeed * Time::Delta, 0.0f);
 		}
 
 		if (glfwGetKey(WindowPtr, GLFW_KEY_LEFT_SHIFT) == 1)
 		{
-			Scene->Camera->Entity->Transform.Position += glm::vec3(0.0f, -MoveSpeed * Time::Delta, 0.0f);
+			Camera->Transform.Position += glm::vec3(0.0f, -MoveSpeed * Time::Delta, 0.0f);
 		}
 
 
@@ -95,13 +108,45 @@ namespace Core
 			glm::vec2 deltaP = CurrentMousePosition - MousePosition;
 			CameraRotation.y -= deltaP.x * 0.003f;
 			CameraRotation.x += deltaP.y * 0.003f;
-			if (CameraRotation.x > glm::pi<float>() / 2)
-				CameraRotation.x = glm::pi<float>() / 2;
-			if (CameraRotation.x < -glm::pi<float>() / 2)
-				CameraRotation.x = -glm::pi<float>() / 2;
 			MousePosition = CurrentMousePosition;
-			Scene->Camera->Entity->Transform.Rotation = glm::quat(CameraRotation);
 		}
+
+
+		// Joystick
+		if (glfwJoystickPresent(Joystick))
+		{
+			int joyAxesCount;
+			int joyButtonsCount;
+			auto joyAxes = glfwGetJoystickAxes(Joystick, &joyAxesCount);
+			auto joyButtons = glfwGetJoystickButtons(Joystick, &joyButtonsCount);
+			float joyMoveSpeed = 5.0f;
+			float joyTurnSpeed = 2.0f;
+			float joyDeadZone = 0.2f;
+
+			if (joyAxesCount >= 2) {
+				if (joyAxes[0] > joyDeadZone || joyAxes[0] < -joyDeadZone)
+					Camera->Transform.Position -= Camera->Transform.Rotation * (glm::vec3(joyAxes[0] * joyMoveSpeed * Time::Delta, 0.0f, 0.0f));
+				if (joyAxes[1] > joyDeadZone || joyAxes[1] < -joyDeadZone)
+					Camera->Transform.Position += Camera->Transform.Rotation * (glm::vec3(0.0f, 0.0f, joyAxes[1] * joyMoveSpeed * Time::Delta));
+			}
+			if (joyAxesCount >= 5) {
+				if (joyAxes[3] > joyDeadZone || joyAxes[3] < -joyDeadZone)
+				{
+					CameraRotation.x += joyAxes[3] * joyTurnSpeed * Time::RealtimeDelta;
+				}
+				if (joyAxes[4] > joyDeadZone || joyAxes[4] < -joyDeadZone)
+				{
+					CameraRotation.y -= joyAxes[4] * joyTurnSpeed * Time::RealtimeDelta;
+				}
+			}
+		}
+
+		// Apply final camera rotation
+		if (CameraRotation.x > glm::pi<float>() / 2)
+			CameraRotation.x = glm::pi<float>() / 2;
+		if (CameraRotation.x < -glm::pi<float>() / 2)
+			CameraRotation.x = -glm::pi<float>() / 2;
+		Camera->Transform.Rotation = glm::quat(CameraRotation);
 	}
 
 
@@ -136,7 +181,7 @@ namespace Core
 
 		else if (key == GLFW_KEY_X && action == GLFW_PRESS)
 		{
-			Scene->PhysicsWorld->Gravity *= -1.0f;
+			Window->Scene->PhysicsWorld->Gravity *= -1.0f;
 		}
 
 	}
@@ -176,6 +221,18 @@ namespace Core
 			glfwSetWindowSize(WindowPtr, vm->width, vm->height);
 			glfwSetWindowPos(WindowPtr, xpos, ypos);
 		}
+	}
+
+	
+	void Input::SetPlayerEntity(Entity* player)
+	{
+		Player = player;
+	}
+
+
+	void Input::SetCameraEntity(Entity* camera)
+	{
+		Camera = camera;
 	}
 
 }

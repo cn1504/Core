@@ -10,8 +10,10 @@
 namespace Core
 {
 
-	Scene::Scene()
+	Scene::Scene(Core::Window* window)
 	{
+		Window = window;
+
 		GeometryRB = new RenderBuffer(glm::vec3(0.0f), 4, true);
 		LightRB = new RenderBuffer(glm::vec3(0.0f), 2, false);
 		BufferCombineRB = new RenderBuffer(glm::vec3(0.0f), 1, false);
@@ -53,6 +55,7 @@ namespace Core
 		c->Transform.Position = glm::vec3(0.0f, 2.0f, -10.0f);
 		Camera = new Core::Camera();
 		c->AddComponent(Camera);
+		Window->Input->SetCameraEntity(c);
 		Entities.push_back(c);
 
 		auto e = new Entity();
@@ -90,6 +93,7 @@ namespace Core
 		e->AddComponent(fb);
 		fb->CalculateMass();
 		fb->ApplyCenterForce(glm::vec3(0.0, 9.8*0.1*fb->GetMass(), 0.0));
+		fb->ApplyTorqueImpulse(glm::vec3(0.0, 0.0, 1.0)*fb->GetMass());
 		Entities.push_back(e);
 
 		e = new Entity();
@@ -105,6 +109,16 @@ namespace Core
 		e->Transform.Scale = glm::vec3(15.0f, 15.0f, 15.0f);
 		e->AddComponent(new LightSource(glm::vec3(1.0f, 1.0f, 1.0f)));
 		Entities.push_back(e);
+
+
+		e = new Entity();
+		e->Transform.Position = glm::vec3(2.0f, 1.0f, 4.0f);
+		e->Transform.Scale = glm::vec3(0.5f, 1.8f, 0.5f);
+		e->AddComponent(Assets::Meshes["Cube"]);
+		e->AddComponent(Assets::Materials["HumanSkin"]);
+		Window->Input->SetPlayerEntity(e);
+		Entities.push_back(e);
+
 
 		// Must be after camera is created
 		ResizeRenderBuffers();
@@ -195,7 +209,7 @@ namespace Core
 					glUniformMatrix4fv(CylinderShader->GetUL("ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(P));
 					glUniform4fv(CylinderShader->GetUL("DiffuseColor"), 1, glm::value_ptr(glm::vec4(e->GetComponent<Material>()->DiffuseColor * e->GetComponent<Material>()->DiffuseIntensity, 1.0f)));
 					glUniform4fv(CylinderShader->GetUL("SpecularColor"), 1, glm::value_ptr(glm::vec4(e->GetComponent<Material>()->SpecularColor * e->GetComponent<Material>()->SpecularIntensity, 1.0f)));
-					glUniform3fv(CylinderShader->GetUL("Direction"), 1, glm::value_ptr(glm::normalize(glm::vec3(V * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)))));
+					glUniform3fv(CylinderShader->GetUL("Direction"), 1, glm::value_ptr(glm::normalize(glm::vec3(MV * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)))));
 					glUniform3fv(CylinderShader->GetUL("Center"), 1, glm::value_ptr(glm::vec3(V * glm::vec4(e->Transform.Position, 1.0f))));
 					glUniform1f(CylinderShader->GetUL("Length"), r->Entity->Transform.Scale.y);
 					glUniform1f(CylinderShader->GetUL("Radius"), r->Entity->Transform.Scale.x / 2);
@@ -328,7 +342,21 @@ namespace Core
 		GeometryRB->Rebuild();
 		LightRB->Rebuild();
 		BufferCombineRB->Rebuild();
-		Camera->UpdateProjection();
+
+		for (auto e : Entities)
+		{
+			auto c = e->GetComponent<Core::Camera>();
+			if (c != nullptr)
+			{
+				c->UpdateProjection();
+			}
+		}
+	}
+	
+
+	void Scene::SetActiveCamera(Core::Camera* camera)
+	{
+		Camera = camera;
 	}
 
 }

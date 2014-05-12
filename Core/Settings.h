@@ -22,6 +22,7 @@ namespace Core
 			extern float MinDrawDistance;
 			extern float MaxDrawDistance;
 
+			extern bool VSync;
 			extern float MaxForegroundFPS;
 			extern float MaxBackgroundFPS;
 		}
@@ -40,6 +41,8 @@ namespace Core
 
 		namespace Controls
 		{
+			extern int Joystick;
+
 			extern int Forwards[2];
 			extern int Backwards[2];
 			extern int StrafeLeft[2];

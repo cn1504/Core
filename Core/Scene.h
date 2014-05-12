@@ -9,10 +9,13 @@
 
 namespace Core
 {
+	class Window;
 
 	class Scene
 	{
 	private:
+		Window* Window;
+
 		RenderBuffer* GeometryRB;
 		RenderBuffer* LightRB;
 		RenderBuffer* BufferCombineRB;
@@ -32,6 +35,7 @@ namespace Core
 		Mesh* Cylinder;
 
 		// Camera Matrix Buffer
+		Camera* Camera;
 		glm::mat4 V;	
 		glm::mat4 P;
 
@@ -41,13 +45,13 @@ namespace Core
 
 	public:
 		DynamicsWorld* PhysicsWorld;
-		Camera* Camera;
 		
-		Scene();
+		Scene(Core::Window* window);
 		~Scene();
 
 		void Update();
 		void ResizeRenderBuffers();
+		void SetActiveCamera(Core::Camera* camera);
 	};
 
 }

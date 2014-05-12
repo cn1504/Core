@@ -29,6 +29,7 @@ namespace Core
 
 		// Make the window's opengl context current 
 		glfwMakeContextCurrent(WindowPtr);
+		glfwSwapInterval(Core::Settings::Video::VSync);
 		HasFocus = true;
 
 		// Initialize Glew
@@ -37,8 +38,8 @@ namespace Core
 		}
 		glGetError();
 
-		Scene = new Core::Scene();
-		Input = new Core::Input(WindowPtr);
+		Input = new Core::Input(this, WindowPtr);
+		Scene = new Core::Scene(this);
 
 		LoopUntilClosed();
 	}
