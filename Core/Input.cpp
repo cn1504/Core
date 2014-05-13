@@ -184,6 +184,12 @@ namespace Core
 			Window->Scene->PhysicsWorld->Gravity *= -1.0f;
 		}
 
+
+		else if (key == GLFW_KEY_EQUAL && action == GLFW_PRESS)
+		{
+			Settings::Video::FXAA = (Settings::Video::FXAA + 1) % 2;
+		}
+
 	}
 
 

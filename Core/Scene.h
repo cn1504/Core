@@ -20,7 +20,12 @@ namespace Core
 		RenderBuffer* LightRB;
 		RenderBuffer* BufferCombineRB;
 
+		// SMAA Textures
+		Texture SMAAAreaTex;
+		Texture SMAASearchTex;
+
 		Shader* MeshShader;
+		Shader* NOAAShader;
 		Shader* FXAAShader;
 		Shader* SphereShader;
 		Shader* CylinderShader;

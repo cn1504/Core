@@ -1,5 +1,6 @@
 #pragma once
 #include "Core.h"
+#include "Texture.h"
 
 namespace Core
 {
@@ -8,15 +9,13 @@ namespace Core
 	{
 	private:
 		GLuint FBO;
-		std::vector<GLuint> ColorTextures; 
+		std::vector<Texture> ColorTextures; 
 		bool HasDepthTexture;
-		GLuint DepthTexture;
-		glm::vec3 ClearColor;
-
-		void CreateTexture(GLuint & into, bool depth, int width, int height);
+		Texture DepthTexture;
+		glm::vec4 ClearColor;
 
 	public:
-		RenderBuffer(glm::vec3 clearColor, int colorBufferCount, bool hasDepthTexture);
+		RenderBuffer(glm::vec4 clearColor, int colorBufferCount, bool hasDepthTexture);
 		~RenderBuffer();
 
 		void MakeCurrent();

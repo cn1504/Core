@@ -22,6 +22,8 @@ namespace Core
 			extern float MinDrawDistance;
 			extern float MaxDrawDistance;
 
+			extern int FXAA;
+
 			extern bool VSync;
 			extern float MaxForegroundFPS;
 			extern float MaxBackgroundFPS;

@@ -20,6 +20,8 @@ namespace Core
 			float MinDrawDistance;
 			float MaxDrawDistance;
 
+			int FXAA;
+
 			bool VSync;
 			float MaxForegroundFPS;
 			float MaxBackgroundFPS;
@@ -68,6 +70,7 @@ namespace Core
 			Video::FOVY = 45;
 			Video::MinDrawDistance = 0.1f;
 			Video::MaxDrawDistance = 1000;
+			Video::FXAA = 1;
 			Video::VSync = true;
 			Video::MaxForegroundFPS = 120;
 			Video::MaxBackgroundFPS = 15;
@@ -106,6 +109,8 @@ namespace Core
 					else if (setting == "FOVY") { Video::FOVY = std::stof(value); }
 					else if (setting == "MinDrawDistance") { Video::MinDrawDistance = std::stof(value); }
 					else if (setting == "MaxDrawDistance") { Video::MaxDrawDistance = std::stof(value); }
+					else if (setting == "FXAA") { Video::FXAA = std::stoi(value); }
+					else if (setting == "VSync") { Video::VSync = (std::stoi(value) > 0); }
 					else if (setting == "VSync") { Video::VSync = (std::stoi(value) > 0); }
 					else if (setting == "MaxForegroundFPS") { Video::MaxForegroundFPS = std::stof(value); }
 					else if (setting == "MaxBackgroundFPS") { Video::MaxBackgroundFPS = std::stof(value); }
@@ -151,6 +156,7 @@ namespace Core
 				settingsFile << "FOVY" << ": " << Video::FOVY << std::endl;
 				settingsFile << "MinDrawDistance" << ": " << Video::MinDrawDistance << std::endl;
 				settingsFile << "MaxDrawDistance" << ": " << Video::MaxDrawDistance << std::endl;
+				settingsFile << "FXAA" << ": " << Video::FXAA << std::endl;
 				settingsFile << "VSync" << ": " << Video::VSync << std::endl;
 				settingsFile << "MaxForegroundFPS" << ": " << Video::MaxForegroundFPS << std::endl;
 				settingsFile << "MaxBackgroundFPS" << ": " << Video::MaxBackgroundFPS << std::endl;

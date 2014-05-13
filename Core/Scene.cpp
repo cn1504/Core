@@ -14,19 +14,22 @@ namespace Core
 	{
 		Window = window;
 
-		GeometryRB = new RenderBuffer(glm::vec3(0.0f), 4, true);
-		LightRB = new RenderBuffer(glm::vec3(0.0f), 2, false);
-		BufferCombineRB = new RenderBuffer(glm::vec3(0.0f), 1, false);
+		// Load RenderBuffers
+		GeometryRB = new RenderBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 4, true);
+		LightRB = new RenderBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 2, false);
+		BufferCombineRB = new RenderBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 1, false);
 		Debug::GLError("ERROR: Could not complete renderbuffers.");
 
-		MeshShader = new Shader("Shaders/mesh.vert", "Shaders/material.frag");
+		// Load Shader Programs
+		NOAAShader = new Shader("Shaders/fspassthrough.vert", "Shaders/noaa.frag");
 		FXAAShader = new Shader("Shaders/fspassthrough.vert", "Shaders/fxaa.frag");
+		MeshShader = new Shader("Shaders/mesh.vert", "Shaders/material.frag");
 		SphereShader = new Shader("Shaders/mesh.vert", "Shaders/sphere.frag");
 		CylinderShader = new Shader("Shaders/mesh.vert", "Shaders/cylinder.frag");
 		LightShader = new Shader("Shaders/mesh.vert", "Shaders/light.frag");
 		BufferCombineShader = new Shader("Shaders/fspassthrough.vert", "Shaders/combinebuffers.frag");
 		Debug::GLError("ERROR: Could not complete shader compilation.");
-
+		
 		// Rendering settings
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_TRUE);
@@ -38,9 +41,11 @@ namespace Core
 		glFrontFace(GL_CCW);
 		Debug::GLError("ERROR: Could not set OpenGL culling options");
 
+		// Initialize Physics
 		PhysicsWorld = new DynamicsWorld(1.0f / 60.0f);
 		PhysicsWorld->Gravity.y = -9.8f * 0.1f;
 
+		// Load standard assets
 		Shapes::Box box; 
 		Cube = Assets::Meshes["Cube"] = box.GenerateMesh();
 		Shapes::Sphere sphere;
@@ -132,10 +137,11 @@ namespace Core
 	{
 		delete GeometryRB;
 		delete LightRB;
-		delete BufferCombineRB;
+		delete BufferCombineRB; 
 
-		delete MeshShader;
+		delete NOAAShader;
 		delete FXAAShader;
+		delete MeshShader;
 		delete SphereShader;
 		delete CylinderShader;
 		delete LightShader;
@@ -324,14 +330,25 @@ namespace Core
 
 		SQuad.Render();
 
-		// Perform final pass to back buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		FXAAShader->MakeCurrent();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, BufferCombineRB->GetOutputTexture(0));
-		glUniform1i(FXAAShader->GetUL("sourceTexture"), 0);
-		glUniform2f(FXAAShader->GetUL("frameSize"), (GLfloat)Settings::Window::Width, (GLfloat)Settings::Window::Height);
-		SQuad.Render();
+		// Perform antialiasing pass(es)
+		if (Settings::Video::FXAA > 0)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			FXAAShader->MakeCurrent();
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, BufferCombineRB->GetOutputTexture(0));
+			glUniform1i(FXAAShader->GetUL("sourceTexture"), 0);
+			glUniform2f(FXAAShader->GetUL("frameSize"), (GLfloat)Settings::Window::Width, (GLfloat)Settings::Window::Height);
+			SQuad.Render();
+		}
+		else {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			NOAAShader->MakeCurrent();
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, BufferCombineRB->GetOutputTexture(0));
+			glUniform1i(NOAAShader->GetUL("sourceTexture"), 0);
+			SQuad.Render();
+		}
 
 		glUseProgram(0);
 	}
@@ -341,7 +358,7 @@ namespace Core
 	{
 		GeometryRB->Rebuild();
 		LightRB->Rebuild();
-		BufferCombineRB->Rebuild();
+		BufferCombineRB->Rebuild(); 
 
 		for (auto e : Entities)
 		{
