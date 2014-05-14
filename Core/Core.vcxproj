@@ -84,6 +84,7 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="FreeBody.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Kernel.cpp" />
     <ClCompile Include="LightSource.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -113,6 +114,7 @@
     <ClInclude Include="Exceptions.h" />
     <ClInclude Include="FreeBody.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="Kernel.h" />
     <ClInclude Include="LightSource.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />

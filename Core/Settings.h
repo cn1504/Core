@@ -41,6 +41,12 @@ namespace Core
 			extern float VoiceVolume;
 		}
 
+		namespace Game
+		{
+			extern int GPUPhysics;
+			extern int CLDevice;
+		}
+
 		namespace Controls
 		{
 			extern int Joystick;

@@ -38,6 +38,35 @@ namespace Core
 		}
 		glGetError();
 
+		// Initialize OpenCL
+		cl_int err;
+		cl::Platform::get(&clPlatformList);
+		Debug::CLError(clPlatformList.size() != 0 ? CL_SUCCESS : -1, "No OpenCL platforms found.");
+
+		cl_context_properties cprops[3] = { CL_CONTEXT_PLATFORM, (cl_context_properties)(clPlatformList[0])(), 0 };
+		clContext = new cl::Context(
+			CL_DEVICE_TYPE_GPU,
+			cprops,
+			NULL,
+			NULL,
+			&err);
+		Debug::CLError(err, "Error establishing OpenCL context.");
+
+		clDevices = clContext->getInfo<CL_CONTEXT_DEVICES>();
+		Debug::CLError(clDevices.size() != 0 ? CL_SUCCESS : -1, "No OpenCL devices found.");
+
+		clQueue = new cl::CommandQueue(*clContext, clDevices[0], 0, &err);
+		Debug::CLError(err, "Error creating OpenCL command queue.");
+
+		if (Settings::Misc::VerboseLogging)
+		{
+			std::string platformVendor;
+			clPlatformList[0].getInfo((cl_platform_info)CL_PLATFORM_VENDOR, &platformVendor);
+			Debug::Log("Using Platform: " + std::to_string(clPlatformList.size()) + ". " + platformVendor);
+			Debug::Log("");
+		}
+
+		// Load Engine objects
 		Input = new Core::Input(this, WindowPtr);
 		Scene = new Core::Scene(this);
 

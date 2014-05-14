@@ -42,8 +42,8 @@ namespace Core
 		Debug::GLError("ERROR: Could not set OpenGL culling options");
 
 		// Initialize Physics
-		PhysicsWorld = new DynamicsWorld(1.0f / 60.0f);
-		PhysicsWorld->Gravity.y = -9.8f * 0.1f;
+		PhysicsWorld = new DynamicsWorld(window, 1.0f / 60.0f);
+		glm::vec3 Gravity(0.0f,-9.8f * 0.1f,0.0f);
 
 		// Load standard assets
 		Shapes::Box box; 
@@ -78,6 +78,7 @@ namespace Core
 		fb->SetMaterial(Assets::Materials["Copper"]);
 		e->AddComponent(fb);
 		fb->CalculateMass();
+		fb->SetGravity(Gravity);
 		e->AddComponent(new Test::Spinner());
 		Entities.push_back(e);
 
@@ -97,13 +98,12 @@ namespace Core
 		fb->SetMaterial(Assets::Materials["Copper"]);
 		e->AddComponent(fb);
 		fb->CalculateMass();
-		fb->ApplyCenterForce(glm::vec3(0.0, 9.8*0.1*fb->GetMass(), 0.0));
-		fb->ApplyTorqueImpulse(glm::vec3(0.0, 0.0, 1.0)*fb->GetMass());
+		fb->SetGravity(Gravity);
 		Entities.push_back(e);
 
 		e = new Entity();
 		e->Transform.Position = glm::vec3(0.0f, -0.5f, 0.0);
-		e->Transform.Scale = glm::vec3(10.0f, 1.0f, 10.0f);
+		e->Transform.Scale = glm::vec3(100.0f, 1.0f, 100.0f);
 		e->AddComponent(Assets::Meshes["Cube"]);
 		e->AddComponent(Assets::Materials["Concrete"]);
 		Entities.push_back(e);

@@ -39,6 +39,12 @@ namespace Core
 			float VoiceVolume;
 		}
 
+		namespace Game
+		{
+			int GPUPhysics;
+			int CLDevice;
+		}
+
 		namespace Controls
 		{
 			int Forwards[2];
@@ -83,6 +89,9 @@ namespace Core
 			Audio::AmbientEffectsVolume = 0.8f;
 			Audio::VoiceVolume = 1.0f;
 			
+			Game::GPUPhysics = 1;
+			Game::CLDevice = 0;
+
 			Misc::VerboseLogging = 1;
 
 			// Read settings file
@@ -122,6 +131,9 @@ namespace Core
 					else if (setting == "SoundEffectsVolume") { Audio::SoundEffectsVolume = std::stof(value); }
 					else if (setting == "AmbientEffectsVolume") { Audio::AmbientEffectsVolume = std::stof(value); }
 					else if (setting == "VoiceVolume") { Audio::VoiceVolume = std::stof(value); }
+
+					else if (setting == "GPUPhysics") { Game::GPUPhysics = std::stoi(value); }
+					else if (setting == "CLDevice") { Game::CLDevice = std::stoi(value); }
 
 					else if (setting == "VerboseLogging") { Misc::VerboseLogging = std::stoi(value); }
 
@@ -168,6 +180,9 @@ namespace Core
 				settingsFile << "SoundEffectsVolume" << ": " << Audio::SoundEffectsVolume << std::endl;
 				settingsFile << "AmbientEffectsVolume" << ": " << Audio::AmbientEffectsVolume << std::endl;
 				settingsFile << "VoiceVolume" << ": " << Audio::VoiceVolume << std::endl;
+
+				settingsFile << "GPUPhysics" << ": " << Game::GPUPhysics << std::endl;
+				settingsFile << "CLDevice" << ": " << Game::CLDevice << std::endl;
 
 				settingsFile << "VerboseLogging" << ": " << Misc::VerboseLogging << std::endl;
 			}

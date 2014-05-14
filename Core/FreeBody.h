@@ -17,26 +17,30 @@ namespace Core
 		Shape* Shape;
 		Material* Material;
 
-		glm::vec3 sumForces;
-		glm::vec3 sumTorques;
-		glm::vec3 accGravity;
-		float invMass;
-		glm::vec3 invInertia;
+		int BufferPosition;
 
-		glm::vec3 Velocity;
-		glm::vec3 AngularVelocity;
+		float* sumForces;
+		float* sumTorques;
+		float* accGravity;
+		float* invMass;
+		float* invInertia;
 
-		glm::vec3 LastPosition;
-		glm::vec3 NextPosition;
+		float* Velocity;
+		float* AngularVelocity;
 
-		glm::quat LastRotation;
-		glm::quat NextRotation;
+		float* LastPosition;
+		float* NextPosition;
+
+		float* LastRotation;
+		float* NextRotation;
 		
 	public:
 		FreeBody(DynamicsWorld* world, float mass = 0.0f);
 		virtual ~FreeBody();
 		virtual void Load();
 		virtual void Update();
+
+		void SetBufferPointers(float* a, float* b, float* c, float* d, float* e, float* f, float* g, float* h, float* i, float* j, float* k);
 
 		void SetCollisionShape(Core::Shape* shape);
 		void SetMaterial(Core::Material* material);

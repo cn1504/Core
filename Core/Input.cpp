@@ -33,7 +33,7 @@ namespace Core
 		if (Settings::Misc::VerboseLogging)
 		{
 			Debug::Log("Joystick count: " + std::to_string(JoystickCount));
-			Debug::Log("Current joystick: " + std::to_string(Joystick));
+			Debug::Log("Current joystick: " + std::to_string(Joystick) + ". " + glfwGetJoystickName(Joystick));
 			Debug::Log("");
 		}
 	}
@@ -177,11 +177,6 @@ namespace Core
 			if (currentMonitor == monitorCount)
 				currentMonitor = 0;
 			RepositionWindow();
-		}
-
-		else if (key == GLFW_KEY_X && action == GLFW_PRESS)
-		{
-			Window->Scene->PhysicsWorld->Gravity *= -1.0f;
 		}
 
 

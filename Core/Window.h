@@ -12,6 +12,12 @@ namespace Core
 		GLFWwindow* WindowPtr;
 
 	public:
+		// OpenCL Objects
+		std::vector<cl::Platform> clPlatformList;
+		std::vector<cl::Device> clDevices;
+		cl::Context* clContext;
+		cl::CommandQueue* clQueue;
+
 		Input* Input;
 		Scene* Scene;
 

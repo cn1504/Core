@@ -28,7 +28,7 @@ namespace Core
 		void CLError(cl_int error, std::string error_message)
 		{
 			if (error != CL_SUCCESS) {
-				Log(error_message);
+				Log("OpenCL Error: " + std::to_string(error) + ". " + error_message);
 				Close();
 				exit(EXIT_FAILURE);
 			}
