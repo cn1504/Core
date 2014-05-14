@@ -75,7 +75,7 @@ namespace Core
 		e->AddComponent(Assets::Materials["Brass"]);
 		auto fb = new FreeBody(PhysicsWorld);
 		fb->SetCollisionShape(new Shapes::Box);
-		fb->SetMaterial(Assets::Materials["Copper"]);
+		fb->SetMaterial(Assets::Materials["Brass"]);
 		e->AddComponent(fb);
 		fb->CalculateMass();
 		fb->SetGravity(Gravity);
@@ -99,6 +99,7 @@ namespace Core
 		e->AddComponent(fb);
 		fb->CalculateMass();
 		fb->SetGravity(Gravity);
+		fb->ApplyCenterForce(-Gravity * fb->GetMass());
 		Entities.push_back(e);
 
 		e = new Entity();
@@ -121,6 +122,11 @@ namespace Core
 		e->Transform.Scale = glm::vec3(0.5f, 1.8f, 0.5f);
 		e->AddComponent(Assets::Meshes["Cube"]);
 		e->AddComponent(Assets::Materials["HumanSkin"]);
+		fb = new FreeBody(PhysicsWorld);
+		fb->SetCollisionShape(new Shapes::Box);
+		fb->SetMaterial(Assets::Materials["HumanSkin"]);
+		e->AddComponent(fb);
+		fb->CalculateMass();
 		Window->Input->SetPlayerEntity(e);
 		Entities.push_back(e);
 

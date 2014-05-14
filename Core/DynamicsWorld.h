@@ -36,6 +36,21 @@ namespace Core
 		float LastRotation[MAX_BODIES * 4];
 		float NextRotation[MAX_BODIES * 4];
 
+		cl::Buffer* sumForcesBuffer;
+		cl::Buffer* sumTorquesBuffer;
+		cl::Buffer* accGravityBuffer;
+		cl::Buffer* invMassBuffer; 
+		cl::Buffer* invInertiaBuffer;
+
+		cl::Buffer* VelocityBuffer;
+		cl::Buffer* AngularVelocityBuffer;
+
+		cl::Buffer* LastPositionBuffer;
+		cl::Buffer* NextPositionBuffer;
+
+		cl::Buffer* LastRotationBuffer;
+		cl::Buffer* NextRotationBuffer;
+
 		void GPUPhysics();
 
 		float TimeStep;
