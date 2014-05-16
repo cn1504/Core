@@ -30,6 +30,9 @@
 #include <glm/ext.hpp>
 //#include <glm/gtx/quaternion.hpp>
 
+#include <libtexture.h>
+#pragma comment(lib, "libtexture.lib")
+
 #include "Exceptions.h"
 #include "Settings.h"
 #include "Debug.h"

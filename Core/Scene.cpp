@@ -54,6 +54,7 @@ namespace Core
 		Cylinder = Assets::Meshes["Cylinder"] = cylinder.GenerateMesh();
 
 		Assets::CreateStandardMaterials();
+		Assets::CreateStandardTextures();
 
 		// Load Scene Objects
 		auto c = new Entity();

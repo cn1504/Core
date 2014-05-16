@@ -6,6 +6,7 @@ namespace Core
 	{
 		std::unordered_map<std::string, Mesh*> Meshes;
 		std::unordered_map<std::string, Material*> Materials;
+		std::unordered_map<std::string, Texture*> Textures;
 		
 
 		void CreateStandardMaterials()
@@ -331,6 +332,14 @@ namespace Core
 
 		}
 
+		
+		void CreateStandardTextures()
+		{
+			Texture* t = new Texture;
+			t->LoadFromPNG("Textures/Consolas16.png", 256, 256);
+			Textures["Consolas16"] = t;
+		}
+
 
 		void Clear()
 		{
@@ -340,6 +349,11 @@ namespace Core
 			}
 
 			for (auto c : Materials)
+			{
+				delete c.second;
+			}
+
+			for (auto c : Textures)
 			{
 				delete c.second;
 			}

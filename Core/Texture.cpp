@@ -51,7 +51,7 @@ namespace Core
 	}
 
 
-	void Texture::CreateTexture(const unsigned char* bytes, int width, int height, GLint iformat, GLint format)
+	void Texture::CreateTexture(const unsigned char* bytes, int width, int height, GLint iformat, GLint format, GLfloat wrap, GLfloat mag_filter, GLfloat min_filter)
 	{
 		// Clear old texture if it exists
 		glDeleteTextures(1, &Id);
@@ -60,10 +60,15 @@ namespace Core
 		glGenTextures(1, &Id);
 		glBindTexture(GL_TEXTURE_2D, Id);
 
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		// Add Anisotropic Filtering
+		GLfloat maxAniso = 0.0f;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
 
 		glTexImage2D(
 			GL_TEXTURE_2D,
@@ -78,6 +83,22 @@ namespace Core
 			);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+
+	void Texture::LoadFromPNG(const std::string& pngFilename, GLuint width, GLuint height)
+	{
+		std::vector<unsigned char> image;
+
+		unsigned error = LibTexture::LoadPNG(image, width, height, pngFilename);
+
+		// If there's an error, display it.
+		if (error != 0)
+		{
+			Debug::Error("Error loading png texture file: " + std::to_string(error));
+		}
+
+		CreateTexture(&image[0], width, height, GL_RGBA, GL_RGBA, GL_REPEAT, GL_LINEAR, GL_LINEAR);
 	}
 
 }
