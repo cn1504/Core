@@ -6,6 +6,7 @@
 #include "Spinner.h"
 #include "Assets.h"
 #include "LightSource.h"
+#include "Text.h"
 
 namespace Core
 {
@@ -28,6 +29,7 @@ namespace Core
 		CylinderShader = new Shader("Shaders/mesh.vert", "Shaders/cylinder.frag");
 		LightShader = new Shader("Shaders/mesh.vert", "Shaders/light.frag");
 		BufferCombineShader = new Shader("Shaders/fspassthrough.vert", "Shaders/combinebuffers.frag");
+		FontShader = new Shader("Shaders/font.vert", "Shaders/font.frag");
 		Debug::GLError("ERROR: Could not complete shader compilation.");
 		
 		// Rendering settings
@@ -153,6 +155,7 @@ namespace Core
 		delete CylinderShader;
 		delete LightShader;
 		delete BufferCombineShader;
+		delete FontShader;
 
 		for (auto e : Entities)
 		{
@@ -338,9 +341,9 @@ namespace Core
 		SQuad.Render();
 
 		// Perform antialiasing pass(es)
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		if (Settings::Video::FXAA > 0)
 		{
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			FXAAShader->MakeCurrent();
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, BufferCombineRB->GetOutputTexture(0));
@@ -349,7 +352,6 @@ namespace Core
 			SQuad.Render();
 		}
 		else {
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			NOAAShader->MakeCurrent();
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, BufferCombineRB->GetOutputTexture(0));
@@ -357,7 +359,33 @@ namespace Core
 			SQuad.Render();
 		}
 
+		RenderUI();
+
 		glUseProgram(0);
+	}
+
+	
+	void Scene::RenderUI()
+	{
+		glViewport(0, 0, Settings::Window::Width, Settings::Window::Height);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glDisable(GL_DEPTH_TEST);
+
+		//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		//glEnable(GL_BLEND);
+		//glDisable(GL_ALPHA_TEST);
+
+		if (Settings::Video::ShowFPS)
+		{
+			FontShader->MakeCurrent();
+			Text fpsText("FPS: " + std::to_string((int)Time::FPS), 10, Settings::Window::Height - 20, glm::vec4(1.0, 1.0, 1.0, 1.0), Assets::Textures["Consolas16"], 16, 16);
+			fpsText.Render(FontShader);
+		}
+
+		//glDisable(GL_BLEND);
+		//glEnable(GL_ALPHA_TEST);
+		glEnable(GL_DEPTH_TEST);
+		Debug::GLError("ERROR: failed to render ui.");
 	}
 
 

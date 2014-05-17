@@ -25,6 +25,8 @@ namespace Core
 			bool VSync;
 			float MaxForegroundFPS;
 			float MaxBackgroundFPS;
+
+			bool ShowFPS;
 		}
 
 		namespace Audio
@@ -80,6 +82,7 @@ namespace Core
 			Video::VSync = true;
 			Video::MaxForegroundFPS = 120;
 			Video::MaxBackgroundFPS = 15;
+			Video::ShowFPS = true;
 
 			Audio::AudioEnabled = 1;
 			Audio::MusicEnabled = 1;			
@@ -120,9 +123,9 @@ namespace Core
 					else if (setting == "MaxDrawDistance") { Video::MaxDrawDistance = std::stof(value); }
 					else if (setting == "FXAA") { Video::FXAA = std::stoi(value); }
 					else if (setting == "VSync") { Video::VSync = (std::stoi(value) > 0); }
-					else if (setting == "VSync") { Video::VSync = (std::stoi(value) > 0); }
 					else if (setting == "MaxForegroundFPS") { Video::MaxForegroundFPS = std::stof(value); }
 					else if (setting == "MaxBackgroundFPS") { Video::MaxBackgroundFPS = std::stof(value); }
+					else if (setting == "ShowFPS") { Video::ShowFPS = (std::stoi(value) > 0); }
 
 					else if (setting == "AudioEnabled") { Audio::AudioEnabled = std::stoi(value); }
 					else if (setting == "MusicEnabled") { Audio::MusicEnabled = std::stoi(value); }
@@ -172,6 +175,7 @@ namespace Core
 				settingsFile << "VSync" << ": " << Video::VSync << std::endl;
 				settingsFile << "MaxForegroundFPS" << ": " << Video::MaxForegroundFPS << std::endl;
 				settingsFile << "MaxBackgroundFPS" << ": " << Video::MaxBackgroundFPS << std::endl;
+				settingsFile << "ShowFPS" << ": " << Video::ShowFPS << std::endl;
 
 				settingsFile << "AudioEnabled" << ": " << Audio::AudioEnabled << std::endl;
 				settingsFile << "MusicEnabled" << ": " << Audio::MusicEnabled << std::endl;

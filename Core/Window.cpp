@@ -29,7 +29,10 @@ namespace Core
 
 		// Make the window's opengl context current 
 		glfwMakeContextCurrent(WindowPtr);
-		glfwSwapInterval(Core::Settings::Video::VSync);
+		if (Core::Settings::Video::VSync)
+			glfwSwapInterval(1);
+		else
+			glfwSwapInterval(0);
 		HasFocus = true;
 
 		// Initialize Glew

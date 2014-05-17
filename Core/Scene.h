@@ -31,6 +31,7 @@ namespace Core
 		Shader* CylinderShader;
 		Shader* LightShader;
 		Shader* BufferCombineShader;
+		Shader* FontShader;
 
 		ScreenQuad SQuad;
 
@@ -47,6 +48,7 @@ namespace Core
 		void RenderGeometry();
 		void RenderLight();
 		void RenderPost();
+		void RenderUI();
 
 	public:
 		DynamicsWorld* PhysicsWorld;

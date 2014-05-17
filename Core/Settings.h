@@ -27,6 +27,8 @@ namespace Core
 			extern bool VSync;
 			extern float MaxForegroundFPS;
 			extern float MaxBackgroundFPS;
+
+			extern bool ShowFPS;
 		}
 
 		namespace Audio 
