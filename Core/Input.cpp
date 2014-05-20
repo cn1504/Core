@@ -179,20 +179,9 @@ namespace Core
 			RepositionWindow();
 		}
 
-		else if (key == GLFW_KEY_X && action == GLFW_PRESS)
-		{
-			auto FB = Player->GetComponent<FreeBody>();
-			FB->ApplyImpulse(glm::vec3(0, 0.98, 0) * FB->GetMass(), glm::vec3(0.3, 0.0, 0.3));
-		}
-
 		else if (key == GLFW_KEY_EQUAL && action == GLFW_PRESS)
 		{
 			Settings::Video::FXAA = (Settings::Video::FXAA + 1) % 2;
-		}
-
-		else if (key == GLFW_KEY_MINUS && action == GLFW_PRESS)
-		{
-			Settings::Game::GPUPhysics = (Settings::Game::GPUPhysics + 1) % 2;
 		}
 
 	}

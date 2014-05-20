@@ -18,7 +18,6 @@ namespace Test
 		FB = Entity->GetComponent<Core::FreeBody>();
 		TimeSinceLastImpulse = 0.0f;
 		i = 0;
-		FB->ApplyCenterForce(glm::vec3(0, 9.8*0.1 * FB->GetMass(), 0));
 	}
 
 

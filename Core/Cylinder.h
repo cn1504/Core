@@ -16,8 +16,7 @@ namespace Core
 
 			virtual Mesh* GenerateMesh();
 			virtual float CalculateVolume(glm::vec3 scale);
-			virtual glm::vec3 CalculateCenterOfMass(glm::vec3 scale);
-			virtual glm::vec3 CalculateInertia(glm::vec3 scale);
+			virtual btCollisionShape* GetCollisionShape(glm::vec3 scale);
 		};
 
 	}

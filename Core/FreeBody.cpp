@@ -3,35 +3,13 @@
 namespace Core
 {
 
-	FreeBody::FreeBody(DynamicsWorld* world, float mass)
+	FreeBody::FreeBody(DynamicsWorld* world, Core::Shape* shape, Core::Material* material, bool isDynamic)
 	{
 		World = world;
-		BufferPosition = world->AddBody(this);
 
-		invMass[0] = 1.0f / mass;
-
-		Shape = nullptr;
-		Material = nullptr;
-		
-		// Initialize values
-		sumForces[0] = 0.0f;
-		sumForces[1] = 0.0f;
-		sumForces[2] = 0.0f;
-		sumTorques[0] = 0.0f;
-		sumTorques[1] = 0.0f;
-		sumTorques[2] = 0.0f;
-		accGravity[0] = 0.0f;
-		accGravity[1] = 0.0f;
-		accGravity[2] = 0.0f;
-		invInertia[0] = 0.0f;
-		invInertia[0] = 0.0f;
-		invInertia[0] = 0.0f;
-		Velocity[0] = 0.0f;
-		Velocity[1] = 0.0f;
-		Velocity[2] = 0.0f;
-		AngularVelocity[0] = 0.0f;
-		AngularVelocity[1] = 0.0f;
-		AngularVelocity[2] = 0.0f;
+		Shape = shape;
+		Material = material;
+		IsDynamic = isDynamic;
 	}
 
 
@@ -42,42 +20,35 @@ namespace Core
 	}
 
 
-	void FreeBody::SetBufferPointers(float* a, float* b, float* c, float* d, float* e, float* f, float* g, float* h, float* i, float* j, float* k)
-	{
-		sumForces = a;
-		sumTorques = b;
-		accGravity = c;
-		invMass = d;
-		invInertia = e;
-
-		Velocity = f;
-		AngularVelocity = g;
-
-		LastPosition = h;
-		NextPosition = i;
-
-		LastRotation = j;
-		NextRotation = k;
-	}
-
-
 	void FreeBody::Load()
 	{
-		LastPosition[0] = Entity->Transform.Position.x;
-		LastPosition[1] = Entity->Transform.Position.y;
-		LastPosition[2] = Entity->Transform.Position.z;
-		NextPosition[0] = Entity->Transform.Position.x;
-		NextPosition[1] = Entity->Transform.Position.y;
-		NextPosition[2] = Entity->Transform.Position.z;
+		colShape = Shape->GetCollisionShape(Entity->Transform.Scale);
 
-		LastRotation[0] = Entity->Transform.Rotation.x;
-		LastRotation[1] = Entity->Transform.Rotation.y;
-		LastRotation[2] = Entity->Transform.Rotation.z;
-		LastRotation[3] = Entity->Transform.Rotation.w;
-		NextRotation[0] = Entity->Transform.Rotation.x;
-		NextRotation[1] = Entity->Transform.Rotation.y;
-		NextRotation[2] = Entity->Transform.Rotation.z;
-		NextRotation[3] = Entity->Transform.Rotation.w;
+		btScalar mass(0.0);
+		btVector3 localInertia(0, 0, 0);
+		if (IsDynamic)
+		{
+			float volume = Shape->CalculateVolume(Entity->Transform.Scale);
+			mass = btScalar(Material->Density * volume);
+			colShape->calculateLocalInertia(mass, localInertia);
+		}
+		else
+		{
+			mass = btScalar(0.0);
+		}
+
+		btTransform startTransform;
+		startTransform.setIdentity();
+
+		startTransform.setOrigin(btVector3(Entity->Transform.Position.x, Entity->Transform.Position.y, Entity->Transform.Position.z));
+		startTransform.setRotation(btQuaternion(Entity->Transform.Rotation.x, Entity->Transform.Rotation.y, Entity->Transform.Rotation.z, Entity->Transform.Rotation.w));
+
+		//using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+		body = new btRigidBody(rbInfo);
+
+		World->AddBody(this);
 	}
 
 
@@ -86,116 +57,50 @@ namespace Core
 	}
 
 
-	void FreeBody::SetCollisionShape(Core::Shape* shape)
+	btRigidBody* FreeBody::GetBody()
 	{
-		Shape = shape;
-	}
-	
-
-	void FreeBody::SetMaterial(Core::Material* material)
-	{
-		Material = material;
+		return body;
 	}
 
-	
-	void FreeBody::CalculateMass()
-	{
-		if (Shape != nullptr && Material != nullptr)
-		{
-			float volume = Shape->CalculateVolume(Entity->Transform.Scale);
-			float Mass = (Material->Density * volume);
-			invMass[0] = 1.0f / Mass;
-			glm::vec3 invI = 1.0f / (Shape->CalculateInertia(Entity->Transform.Scale) * Mass);
-			invInertia[0] = invI.x;
-			invInertia[1] = invI.y;
-			invInertia[2] = invI.z;
-		}
-	}
+
 	float FreeBody::GetMass()
 	{
-		return 1.0f / invMass[0];
+		return 1.0f / body->getInvMass();
 	}
 
 
 	void FreeBody::SetGravity(const glm::vec3& g)
 	{
-		accGravity[0] = g.x;
-		accGravity[1] = g.y;
-		accGravity[2] = g.z;
-	}
-
-
-	void FreeBody::IntegrateForward(float timestep)
-	{
-		Velocity[0] += (sumForces[0] * invMass[0] + accGravity[0]) * timestep;
-		Velocity[1] += (sumForces[1] * invMass[0] + accGravity[1]) * timestep;
-		Velocity[2] += (sumForces[2] * invMass[0] + accGravity[2]) * timestep;
-		AngularVelocity[0] += sumTorques[0] * invInertia[0] * timestep;
-		AngularVelocity[1] += sumTorques[1] * invInertia[1] * timestep;
-		AngularVelocity[2] += sumTorques[2] * invInertia[2] * timestep;
-
-		LastPosition[0] = NextPosition[0];
-		LastPosition[1] = NextPosition[1];
-		LastPosition[2] = NextPosition[2];
-		NextPosition[0] += Velocity[0] * timestep;
-		NextPosition[1] += Velocity[1] * timestep;
-		NextPosition[2] += Velocity[2] * timestep;
-
-		LastRotation[0] = NextRotation[0];
-		LastRotation[1] = NextRotation[1];
-		LastRotation[2] = NextRotation[2];
-		LastRotation[3] = NextRotation[3];
-		glm::quat nr = glm::quat(NextRotation[3], NextRotation[0], NextRotation[1], NextRotation[2]) * glm::quat(glm::vec3(AngularVelocity[0], AngularVelocity[1], AngularVelocity[2]) * timestep);
-		NextRotation[0] = nr.x; 
-		NextRotation[1] = nr.y; 
-		NextRotation[2] = nr.z; 
-		NextRotation[3] = nr.w;
-	}
-
-	void FreeBody::Interpolate(float lerp)
-	{
-		Entity->Transform.Position = lerp * glm::vec3(NextPosition[0], NextPosition[1], NextPosition[2]) + (1.0f - lerp) * glm::vec3(LastPosition[0], LastPosition[1], LastPosition[2]);
-
-		Entity->Transform.Rotation = glm::mix(glm::quat(LastRotation[3], LastRotation[0], LastRotation[1], LastRotation[2]), glm::quat(NextRotation[3], NextRotation[0], NextRotation[1], NextRotation[2]), lerp);
+		body->setGravity(btVector3(g.x, g.y, g.z));
 	}
 
 
 	void FreeBody::ApplyForce(const glm::vec3& force, const glm::vec3& location)
 	{
-		ApplyCenterForce(force);
-		ApplyTorque(glm::cross(location, force));
+		body->applyForce(btVector3(force.x, force.y, force.z), btVector3(location.x, location.y, location.z));
 	}
 	void FreeBody::ApplyCenterForce(glm::vec3 force)
 	{
-		sumForces[0] += force.x;
-		sumForces[1] += force.y;
-		sumForces[2] += force.z;
+		body->applyCentralForce(btVector3(force.x, force.y, force.z));
 	}
 
 	void FreeBody::ApplyImpulse(const glm::vec3& force, const glm::vec3& location)
 	{
-		ApplyCenterImpulse(force);
-		ApplyTorqueImpulse(glm::cross(location, force));
+		body->applyImpulse(btVector3(force.x, force.y, force.z), btVector3(location.x, location.y, location.z));
 	}
 	void FreeBody::ApplyCenterImpulse(glm::vec3 force)
 	{
-		Velocity[0] += force.x * invMass[0];
-		Velocity[1] += force.y * invMass[0];
-		Velocity[2] += force.z * invMass[0];
+		body->applyCentralImpulse(btVector3(force.x, force.y, force.z));
 	}
 
 
 	void FreeBody::ApplyTorque(const glm::vec3& torque)
 	{
-		sumTorques[0] += torque.x;
-		sumTorques[1] += torque.y;
-		sumTorques[2] += torque.z;
+		body->applyTorque(btVector3(torque.x, torque.y, torque.z));
 	}
 	void FreeBody::ApplyTorqueImpulse(const glm::vec3& torque)
 	{
-		AngularVelocity[0] += invInertia[0] * torque.x;
-		AngularVelocity[1] += invInertia[1] * torque.y;
-		AngularVelocity[2] += invInertia[2] * torque.z;
+		body->applyTorqueImpulse(btVector3(torque.x, torque.y, torque.z));
 	}
 
 }

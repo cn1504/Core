@@ -44,8 +44,7 @@ namespace Core
 		Debug::GLError("ERROR: Could not set OpenGL culling options");
 
 		// Initialize Physics
-		PhysicsWorld = new DynamicsWorld(window, 1.0f / 60.0f);
-		glm::vec3 Gravity(0.0f,-9.8f * 0.1f,0.0f);
+		PhysicsWorld = new DynamicsWorld();
 
 		// Load standard assets
 		Shapes::Box box; 
@@ -70,39 +69,43 @@ namespace Core
 		e->Transform.Position = glm::vec3(-1.0f, 0.5f, -1.0);
 		e->AddComponent(Assets::Meshes["Cube"]);
 		e->AddComponent(Assets::Materials["Silver"]);
+		auto fb = new FreeBody(PhysicsWorld, new Shapes::Box, Assets::Materials["Silver"], true);
+		e->AddComponent(fb);
 		Entities.push_back(e);
 		
-		e = new Entity();
-		e->Transform.Position = glm::vec3(0.0f, 1.5f, 0.0f);
-		e->AddComponent(Assets::Meshes["Cube"]);
-		e->AddComponent(Assets::Materials["Brass"]);
-		auto fb = new FreeBody(PhysicsWorld);
-		fb->SetCollisionShape(new Shapes::Box);
-		fb->SetMaterial(Assets::Materials["Brass"]);
-		e->AddComponent(fb);
-		fb->CalculateMass();
-		fb->SetGravity(Gravity);
-		e->AddComponent(new Test::Spinner());
-		Entities.push_back(e);
+		for (int i = 0; i < 10; i++)
+		{
+			for (int j = 0; j < 10; j++)
+			{
+				for (int k = 0; k < 10; k++)
+				{
+					e = new Entity();
+					e->Transform.Position = glm::vec3(2.0f * i, 1.0f + 2.0f * j, 2.0f * k);
+					e->AddComponent(Assets::Meshes["Cube"]);
+					e->AddComponent(Assets::Materials["Brass"]);
+					fb = new FreeBody(PhysicsWorld, new Shapes::Box, Assets::Materials["Brass"], true);
+					e->AddComponent(fb);
+					//e->AddComponent(new Test::Spinner());
+					Entities.push_back(e);
+				}
+			}
+		}
 
 		e = new Entity();
 		e->Transform.Position = glm::vec3(1.0f, 2.0f, -2.0f);
 		e->AddComponent(Assets::Meshes["Sphere"]);
-		e->AddComponent(Assets::Materials["Gold"]);
+		e->AddComponent(Assets::Materials["Gold"]); 
+		fb = new FreeBody(PhysicsWorld, new Shapes::Sphere, Assets::Materials["Gold"], true);
+		e->AddComponent(fb);
 		Entities.push_back(e);
 
 		e = new Entity();
-		e->Transform.Position = glm::vec3(2.0f, 1.0f, 1.0f);
+		e->Transform.Position = glm::vec3(2.0f, 1.0f, -2.0f);
 		e->Transform.Scale = glm::vec3(1.0f, 2.0f, 1.0f);
 		e->AddComponent(Assets::Meshes["Cylinder"]);
 		e->AddComponent(Assets::Materials["Copper"]);
-		fb = new FreeBody(PhysicsWorld);
-		fb->SetCollisionShape(new Shapes::Cylinder);
-		fb->SetMaterial(Assets::Materials["Copper"]);
+		fb = new FreeBody(PhysicsWorld, new Shapes::Cylinder, Assets::Materials["Copper"], true);
 		e->AddComponent(fb);
-		fb->CalculateMass();
-		fb->SetGravity(Gravity);
-		fb->ApplyCenterForce(-Gravity * fb->GetMass());
 		Entities.push_back(e);
 
 		e = new Entity();
@@ -110,11 +113,43 @@ namespace Core
 		e->Transform.Scale = glm::vec3(100.0f, 1.0f, 100.0f);
 		e->AddComponent(Assets::Meshes["Cube"]);
 		e->AddComponent(Assets::Materials["Concrete"]);
+		fb = new FreeBody(PhysicsWorld, new Shapes::Box, Assets::Materials["Concrete"], false);
+		e->AddComponent(fb);
 		Entities.push_back(e);
 
 
 		e = new Entity();
-		e->Transform.Position = glm::vec3(-2.0f, 1.5f, 0.0);
+		e->Transform.Position = glm::vec3(25.0f, 10.0f, 25.0f);
+		e->Transform.Scale = glm::vec3(30.0f, 30.0f, 30.0f);
+		e->AddComponent(new LightSource(glm::vec3(1.0f, 1.0f, 1.0f)));
+		Entities.push_back(e);
+
+		e = new Entity();
+		e->Transform.Position = glm::vec3(0.0f, 10.0f, 25.0f);
+		e->Transform.Scale = glm::vec3(30.0f, 30.0f, 30.0f);
+		e->AddComponent(new LightSource(glm::vec3(1.0f, 1.0f, 1.0f)));
+		Entities.push_back(e);
+
+		e = new Entity();
+		e->Transform.Position = glm::vec3(10.0f, 25.0f, 0.0f);
+		e->Transform.Scale = glm::vec3(30.0f, 30.0f, 30.0f);
+		e->AddComponent(new LightSource(glm::vec3(1.0f, 1.0f, 1.0f)));
+		Entities.push_back(e);
+
+		e = new Entity();
+		e->Transform.Position = glm::vec3(25.0f, 10.0f, 0.0f);
+		e->Transform.Scale = glm::vec3(30.0f, 30.0f, 30.0f);
+		e->AddComponent(new LightSource(glm::vec3(1.0f, 1.0f, 1.0f)));
+		Entities.push_back(e);
+
+		e = new Entity();
+		e->Transform.Position = glm::vec3(0.0f, 25.0f, 10.0f);
+		e->Transform.Scale = glm::vec3(30.0f, 30.0f, 30.0f);
+		e->AddComponent(new LightSource(glm::vec3(1.0f, 1.0f, 1.0f)));
+		Entities.push_back(e);
+
+		e = new Entity();
+		e->Transform.Position = glm::vec3(-2.0f, 1.5f, 0.0f);
 		e->Transform.Scale = glm::vec3(15.0f, 15.0f, 15.0f);
 		e->AddComponent(new LightSource(glm::vec3(1.0f, 1.0f, 1.0f)));
 		Entities.push_back(e);
@@ -125,11 +160,8 @@ namespace Core
 		e->Transform.Scale = glm::vec3(0.5f, 1.8f, 0.5f);
 		e->AddComponent(Assets::Meshes["Cube"]);
 		e->AddComponent(Assets::Materials["HumanSkin"]);
-		fb = new FreeBody(PhysicsWorld);
-		fb->SetCollisionShape(new Shapes::Box);
-		fb->SetMaterial(Assets::Materials["HumanSkin"]);
+		fb = new FreeBody(PhysicsWorld, new Shapes::Box, Assets::Materials["HumanSkin"], false);
 		e->AddComponent(fb);
-		fb->CalculateMass();
 		Window->Input->SetPlayerEntity(e);
 		Entities.push_back(e);
 
@@ -194,6 +226,7 @@ namespace Core
 		for (auto e : Entities)
 		{
 			if (e->IsRenderable()) {
+
 				glm::mat4 M = e->Transform.ToMatrix();
 				glm::mat4 MV = V * M;
 				glm::mat4 MVP = P * MV;

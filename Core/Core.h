@@ -33,6 +33,9 @@
 #include <libtexture.h>
 #pragma comment(lib, "libtexture.lib")
 
+#include <Bullet/btBulletDynamicsCommon.h>
+#pragma comment(lib, "Bullet.lib")
+
 #include "Exceptions.h"
 #include "Settings.h"
 #include "Debug.h"

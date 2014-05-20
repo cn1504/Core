@@ -5,9 +5,7 @@ __kernel void forwardInt(__global const float * forceSum,
 	__global const float * invInertia,
 	__global float * velocity,
 	__global float * angularVelocity,
-	__global float * lastPosition,
 	__global float * nextPosition,
-	__global float * lastRotation,
 	__global float * nextRotation,
 	const float timestep,
 	const int num)
@@ -24,36 +22,38 @@ __kernel void forwardInt(__global const float * forceSum,
 		int idx4z = idx * 4 + 2;
 		int idx4w = idx * 4 + 3;
 		
-		velocity[idx3x] += (forceSum[idx3x] * invMass[idx] + gravity[idx3x]) * timestep;
-		velocity[idx3y] += (forceSum[idx3y] * invMass[idx] + gravity[idx3y]) * timestep;
-		velocity[idx3z] += (forceSum[idx3z] * invMass[idx] + gravity[idx3z]) * timestep;
-		angularVelocity[idx3x] += torqueSum[idx3x] * invInertia[idx3x] * timestep;
-		angularVelocity[idx3y] += torqueSum[idx3y] * invInertia[idx3y] * timestep;
-		angularVelocity[idx3z] += torqueSum[idx3z] * invInertia[idx3z] * timestep;
+		float ts = timestep;
+		float3 vForces = (float3)(forceSum[idx3x], forceSum[idx3y], forceSum[idx3z]);
+		float3 vTorques = (float3)(torqueSum[idx3x], torqueSum[idx3y], torqueSum[idx3z]);
+		float3 vGrav = (float3)(gravity[idx3x], gravity[idx3y], gravity[idx3z]);
+		float fMass = invMass[idx];
+		float3 vInertia = (float3)(invInertia[idx3x], invInertia[idx3y], invInertia[idx3z]);
+		float3 vVelocity = (float3)(velocity[idx3x], velocity[idx3y], velocity[idx3z]);
+		float3 vAngVelocity = (float3)(angularVelocity[idx3x], angularVelocity[idx3y], angularVelocity[idx3z]);
+		
+		float3 vNP = (float3)(nextPosition[idx3x], nextPosition[idx3y], nextPosition[idx3z]);
+		float4 vNR = (float4)(nextRotation[idx4x], nextRotation[idx4y], nextRotation[idx4z], nextRotation[idx4w]);
+		
+		vVelocity += (vForces * fMass + vGrav) * ts;
+		vAngVelocity += vTorques * vInertia * ts;
 
-		lastPosition[idx3x] = nextPosition[idx3x];
-		lastPosition[idx3y] = nextPosition[idx3y];
-		lastPosition[idx3z] = nextPosition[idx3z];
-		nextPosition[idx3x] += velocity[idx3x] * timestep;
-		nextPosition[idx3y] += velocity[idx3y] * timestep;
-		nextPosition[idx3z] += velocity[idx3z] * timestep;
+		velocity[idx3x] = vVelocity.x;
+		velocity[idx3y] = vVelocity.y;
+		velocity[idx3z] = vVelocity.z;
+		angularVelocity[idx3x] = vAngVelocity.x;
+		angularVelocity[idx3y] = vAngVelocity.y;
+		angularVelocity[idx3z] = vAngVelocity.z;
+		
+		vNP += vVelocity * ts;
+		nextPosition[idx3x] = vNP.x;
+		nextPosition[idx3y] = vNP.y;
+		nextPosition[idx3z] = vNP.z; 
 		
 		// Update rotation quat
-		lastRotation[idx4x] = nextRotation[idx4x];
-		lastRotation[idx4y] = nextRotation[idx4y];
-		lastRotation[idx4z] = nextRotation[idx4z];
-		lastRotation[idx4w] = nextRotation[idx4w];
-		float4 q;
-			q.x = lastRotation[idx4x];
-			q.y = lastRotation[idx4y];
-			q.z = lastRotation[idx4z];
-			q.w = lastRotation[idx4w];
+		float4 q = vNR;
 		
 		// Convert eulerangle velocity to a quaternion rotation
-		float3 eulerAngle;
-		eulerAngle.x = angularVelocity[idx3x] * timestep;
-		eulerAngle.y = angularVelocity[idx3y] * timestep;
-		eulerAngle.z = angularVelocity[idx3z] * timestep;
+		float3 eulerAngle = vAngVelocity * ts;
 		
 		float3 c = cos(eulerAngle * 0.5);
 		float3 s = sin(eulerAngle * 0.5);

@@ -138,15 +138,10 @@ namespace Core
 		}
 
 
-		glm::vec3 Box::CalculateCenterOfMass(glm::vec3 scale)
+		btCollisionShape* Box::GetCollisionShape(glm::vec3 scale)
 		{
-			return glm::vec3(0.0f, 0.0f, 0.0f);
-		}
-
-		
-		glm::vec3 Box::CalculateInertia(glm::vec3 scale)
-		{
-			return (1.0f / 12.0f) * glm::vec3(scale.y*scale.y + scale.z*scale.z, scale.x*scale.x + scale.z*scale.z, scale.x*scale.x + scale.y*scale.y);
+			scale *= 0.5f;
+			return new btBoxShape(btVector3(scale.x, scale.y, scale.z));
 		}
 
 	}

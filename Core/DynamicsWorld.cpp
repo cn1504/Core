@@ -1,161 +1,158 @@
 #include "DynamicsWorld.h"
 #include "Window.h"
 
+
+#include <Bullet/BulletMultiThreaded/SpuGatheringCollisionDispatcher.h>
+#include <Bullet/BulletMultiThreaded/PlatformDefinitions.h>
+#include <Bullet/BulletMultiThreaded/Win32ThreadSupport.h>
+#include <Bullet/BulletMultiThreaded/SpuNarrowPhaseCollisionTask/SpuGatheringCollisionTask.h>
+#include <Bullet/BulletMultiThreaded/btParallelConstraintSolver.h>
+#include <Bullet/BulletMultiThreaded/SequentialThreadSupport.h>
+#include <Bullet/BulletCollision/CollisionDispatch/btSimulationIslandManager.h>
+
+//#define SEQUENTIAL
+
+btThreadSupportInterface* createSolverThreadSupport(int maxNumThreads)
+{
+#ifdef SEQUENTIAL
+	SequentialThreadSupport::SequentialThreadConstructionInfo tci("solverThreads", SolverThreadFunc, SolverlsMemoryFunc);
+	SequentialThreadSupport* threadSupport = new SequentialThreadSupport(tci);
+	threadSupport->startSPU();
+#else
+	Win32ThreadSupport::Win32ThreadConstructionInfo threadConstructionInfo("solverThreads", SolverThreadFunc, SolverlsMemoryFunc, maxNumThreads);
+	Win32ThreadSupport* threadSupport = new Win32ThreadSupport(threadConstructionInfo);
+	threadSupport->startSPU();
+#endif
+	return threadSupport;
+}
+
 namespace Core
 {
 
-	DynamicsWorld::DynamicsWorld(Core::Window* window, float timestep)
+	DynamicsWorld::DynamicsWorld()
 	{
-		Window = window;
+		m_threadSupportSolver = 0;
+		m_threadSupportCollision = 0;
+		int maxNumOutstandingTasks = 4;
 
-		ForwardIntegrationKernel = new Kernel(Window->clContext, Window->clDevices, "Kernels/forwardInt.cl", "forwardInt");
-		size_t size = sizeof(float)* MAX_BODIES;
+#ifdef SEQUENTIAL
+		SequentialThreadSupport::SequentialThreadConstructionInfo colCI("collision", processCollisionTask, createCollisionLocalStoreMemory);
+		m_threadSupportCollision = new SequentialThreadSupport(colCI);
+#else
+		m_threadSupportCollision = new Win32ThreadSupport(Win32ThreadSupport::Win32ThreadConstructionInfo(
+			"collision",
+			processCollisionTask,
+			createCollisionLocalStoreMemory,
+			maxNumOutstandingTasks));
+#endif
 
-		// Initialize buffers
-		sumForcesBuffer = new cl::Buffer(*Window->clContext, CL_MEM_READ_ONLY, size * 3);
-		sumTorquesBuffer = new cl::Buffer(*Window->clContext, CL_MEM_READ_ONLY, size * 3);
-		accGravityBuffer = new cl::Buffer(*Window->clContext, CL_MEM_READ_ONLY, size * 3);
-		invMassBuffer = new cl::Buffer(*Window->clContext, CL_MEM_READ_ONLY, size);
-		invInertiaBuffer = new cl::Buffer(*Window->clContext, CL_MEM_READ_ONLY, size * 3);
+		///collision configuration contains default setup for memory, collision setup. Advanced users can create their own configuration. 
+		btDefaultCollisionConstructionInfo cci;
+		cci.m_defaultMaxPersistentManifoldPoolSize = 32768;
+		collisionConfiguration = new btDefaultCollisionConfiguration(cci);
 
-		VelocityBuffer = new cl::Buffer(*Window->clContext, CL_MEM_READ_WRITE, size * 3);
-		AngularVelocityBuffer = new cl::Buffer(*Window->clContext, CL_MEM_READ_WRITE, size * 3);
 
-		LastPositionBuffer = new cl::Buffer(*Window->clContext, CL_MEM_READ_WRITE, size * 3);
-		NextPositionBuffer = new cl::Buffer(*Window->clContext, CL_MEM_READ_WRITE, size * 3);
-		LastRotationBuffer = new cl::Buffer(*Window->clContext, CL_MEM_READ_WRITE, size * 4);
-		NextRotationBuffer = new cl::Buffer(*Window->clContext, CL_MEM_READ_WRITE, size * 4);
-				
+		///use the default collision dispatcher. For parallel processing you can use a diffent dispatcher (see Extras/BulletMultiThreaded)
+		//dispatcher = new btCollisionDispatcher(collisionConfiguration);
+		dispatcher = new SpuGatheringCollisionDispatcher(m_threadSupportCollision, maxNumOutstandingTasks, collisionConfiguration);
 
-		TimeStep = timestep;
-		TimeSinceUpdate = 0.0f;
+		///btDbvtBroadphase is a good general purpose broadphase. You can also try out btAxis3Sweep. 
+		overlappingPairCache = new btDbvtBroadphase(); 
+		
+		///the default constraint solver. For parallel processing you can use a different solver (see Extras/BulletMultiThreaded) 
+		//solver = new btSequentialImpulseConstraintSolver;
+#ifdef SEQUENTIAL
+		solver = new btSequentialImpulseConstraintSolver();
+#else
+		m_threadSupportSolver = createSolverThreadSupport(maxNumOutstandingTasks);
+		solver = new btParallelConstraintSolver(m_threadSupportSolver);
 
-		BodyCount = 0;
+		//this solver requires the contacts to be in a contiguous pool, so avoid dynamic allocation
+		dispatcher->setDispatcherFlags(btCollisionDispatcher::CD_DISABLE_CONTACTPOOL_DYNAMIC_ALLOCATION);
+#endif
+
+		btDiscreteDynamicsWorld* world = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+		dynamicsWorld = world;
+
+		world->getSimulationIslandManager()->setSplitIslands(false);
+		world->getSolverInfo().m_numIterations = 4;
+		world->getSolverInfo().m_solverMode = SOLVER_SIMD + SOLVER_USE_WARMSTARTING;//+SOLVER_RANDMIZE_ORDER;
+
+		dynamicsWorld->getDispatchInfo().m_enableSPU = true;
+
+		dynamicsWorld->setGravity(btVector3(0,-10,0));
 	}
 
 	DynamicsWorld::~DynamicsWorld()
 	{
-		delete ForwardIntegrationKernel;
+		//remove the rigidbodies from the dynamics world and delete them 
+		for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0 ; i--) 
+		{
+			btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i]; 
+			btRigidBody* body = btRigidBody::upcast(obj);
+			if (body && body->getMotionState())
+			{ 
+				delete body->getMotionState(); 
+			} 
+			dynamicsWorld->removeCollisionObject( obj ); 
+			delete obj;
+		}
+
+		//delete collision shapes
+		for (int j = 0; j < collisionShapes.size(); j++)
+		{ 
+			btCollisionShape* shape = collisionShapes[j]; 
+			collisionShapes[j] = 0; 
+			delete shape; 
+		} 
+
+		delete dynamicsWorld;
+		delete solver;
+
+		if (m_threadSupportSolver)
+		{
+			delete m_threadSupportSolver;
+		}
+
+		delete overlappingPairCache;
+		delete dispatcher;
+
+		deleteCollisionLocalStoreMemory();
+		if (m_threadSupportCollision)
+		{
+			delete m_threadSupportCollision;
+		}
+
+		delete collisionConfiguration;
 	}
 
-	int DynamicsWorld::AddBody(FreeBody* body)
+	void DynamicsWorld::AddBody(FreeBody* body)
 	{
-		int i = BodyCount++;
 		FreeBodies.push_back(body);
 
-		body->SetBufferPointers(
-			sumForces + i * 3,
-			sumTorques + i * 3,
-			accGravity + i * 3,
-			invMass + i,
-			invInertia + i * 3,
-			Velocity + i * 3,
-			AngularVelocity + i * 3, 
-			LastPosition + i * 3, 
-			NextPosition + i * 3,
-			LastRotation + i * 4,
-			NextRotation + i * 4 
-			);
-
-		return i;
+		dynamicsWorld->addRigidBody(body->GetBody());
+		collisionShapes.push_back(body->GetBody()->getCollisionShape());
 	}
 
 	void DynamicsWorld::Update()
 	{
-		// Predict next body positions
-		TimeSinceUpdate += Time::Delta;
-		while (TimeSinceUpdate > TimeStep)
+		dynamicsWorld->stepSimulation(Time::Delta, 10);
+
+		for (auto fb : FreeBodies)
 		{
-			TimeSinceUpdate -= TimeStep;
-
-			if (Settings::Game::GPUPhysics > 0)
+			btRigidBody* body = fb->GetBody();
+			
+			if (body && body->getMotionState())
 			{
-				GPUPhysics();
-			}
-			else 
-			{
-				for (auto b : FreeBodies)
-				{
-					b->IntegrateForward(TimeStep);
-				}
+				btTransform trans;
+				body->getMotionState()->getWorldTransform(trans);
 
-
-				// Detect collisions
-				for (auto b : FreeBodies)
-				{
-				}
+				auto p = trans.getOrigin();
+				auto r = trans.getRotation();
+				fb->Entity->Transform.Position = glm::vec3(p.getX(), p.getY(), p.getZ());
+				fb->Entity->Transform.Rotation = glm::quat(r.getW(), r.getX(), r.getY(), r.getZ());
 			}
 		}
-		
-		
-		// Interpolate current position for this frame
-		float lerp = TimeSinceUpdate / TimeStep;
-		for (auto b : FreeBodies)
-		{
-			b->Interpolate(lerp);
-		}
-	}
-
-
-	void DynamicsWorld::GPUPhysics()
-	{
-		cl_int err;
-		size_t size = sizeof(float)* MAX_BODIES;
-		
-		// Write to buffers
-		err = Window->clQueue->enqueueWriteBuffer(*sumForcesBuffer, CL_TRUE, 0, size * 3, sumForces);
-		err = Window->clQueue->enqueueWriteBuffer(*sumTorquesBuffer, CL_TRUE, 0, size * 3, sumTorques);
-		err = Window->clQueue->enqueueWriteBuffer(*invMassBuffer, CL_TRUE, 0, size, invMass);
-		err = Window->clQueue->enqueueWriteBuffer(*invInertiaBuffer, CL_TRUE, 0, size * 3, invInertia);
-		err = Window->clQueue->enqueueWriteBuffer(*accGravityBuffer, CL_TRUE, 0, size * 3, accGravity);
-		err = Window->clQueue->enqueueWriteBuffer(*VelocityBuffer, CL_TRUE, 0, size * 3, Velocity);
-		err = Window->clQueue->enqueueWriteBuffer(*AngularVelocityBuffer, CL_TRUE, 0, size * 3, AngularVelocity);
-		err = Window->clQueue->enqueueWriteBuffer(*LastPositionBuffer, CL_TRUE, 0, size * 3, LastPosition);
-		err = Window->clQueue->enqueueWriteBuffer(*NextPositionBuffer, CL_TRUE, 0, size * 3, NextPosition);
-		err = Window->clQueue->enqueueWriteBuffer(*LastRotationBuffer, CL_TRUE, 0, size * 4, LastRotation);
-		err = Window->clQueue->enqueueWriteBuffer(*NextRotationBuffer, CL_TRUE, 0, size * 4, NextRotation);
-		Debug::CLError(err, "Unable to write to OpenCL buffers.");
-
-		// Set kernel arguments
-		err = ForwardIntegrationKernel->SetArg(0, *sumForcesBuffer);
-		err |= ForwardIntegrationKernel->SetArg(1, *sumTorquesBuffer);
-		err |= ForwardIntegrationKernel->SetArg(2, *accGravityBuffer);
-		err |= ForwardIntegrationKernel->SetArg(3, *invMassBuffer);
-		err |= ForwardIntegrationKernel->SetArg(4, *invInertiaBuffer);
-		err |= ForwardIntegrationKernel->SetArg(5, *VelocityBuffer);
-		err |= ForwardIntegrationKernel->SetArg(6, *AngularVelocityBuffer);
-		err |= ForwardIntegrationKernel->SetArg(7, *LastPositionBuffer);
-		err |= ForwardIntegrationKernel->SetArg(8, *NextPositionBuffer);
-		err |= ForwardIntegrationKernel->SetArg(9, *LastRotationBuffer);
-		err |= ForwardIntegrationKernel->SetArg(10, *NextRotationBuffer);
-		err |= ForwardIntegrationKernel->SetArg(11, TimeStep);
-		err |= ForwardIntegrationKernel->SetArg(12, BodyCount + 0);
-		Debug::CLError(err, "Unable to set OpenCL kernel arguments.");
-
-		// Execute Kernel
-		cl::NDRange localSize(64);
-		cl::NDRange globalSize((int)(ceil(BodyCount / (double)64) * 64));
-
-		cl::Event event;
-		err = Window->clQueue->enqueueNDRangeKernel(
-			*ForwardIntegrationKernel->GetID(),
-			cl::NullRange,
-			globalSize,
-			localSize,
-			NULL,
-			&event);
-		Debug::CLError(err, "Unable to queue OpenCL kernel.");
-
-		event.wait();	// Block until event complete
-
-		// Read result
-		err = Window->clQueue->enqueueReadBuffer(*VelocityBuffer, CL_TRUE, 0, size * 3, Velocity);
-		err = Window->clQueue->enqueueReadBuffer(*AngularVelocityBuffer, CL_TRUE, 0, size * 3, AngularVelocity);
-		err = Window->clQueue->enqueueReadBuffer(*LastPositionBuffer, CL_TRUE, 0, size * 3, LastPosition);
-		err = Window->clQueue->enqueueReadBuffer(*NextPositionBuffer, CL_TRUE, 0, size * 3, NextPosition);
-		err = Window->clQueue->enqueueReadBuffer(*LastRotationBuffer, CL_TRUE, 0, size * 4, LastRotation);
-		err = Window->clQueue->enqueueReadBuffer(*NextRotationBuffer, CL_TRUE, 0, size * 4, NextRotation);
-		Debug::CLError(err, "Unable to read completed OpenCL kernel buffers.");
 	}
 
 }
