@@ -76,4 +76,45 @@ namespace Core
 	{
 		return DepthTexture.GetID();
 	}
+
+
+
+	ShadowRenderBuffer::ShadowRenderBuffer()
+		: RenderBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 0, true)
+	{
+	}
+
+	ShadowRenderBuffer::~ShadowRenderBuffer()
+	{
+		glDeleteFramebuffers(1, &FBO);
+	}
+
+	void ShadowRenderBuffer::MakeCurrent()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glViewport(0, 0, Settings::Video::ShadowResolution, Settings::Video::ShadowResolution);
+	}
+
+	void ShadowRenderBuffer::Rebuild()
+	{
+		DepthTexture.CreateTexture(true, Settings::Video::ShadowResolution, Settings::Video::ShadowResolution);
+
+		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, DepthTexture.GetID(), 0);
+		glDrawBuffer(GL_NONE);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			Debug::Error("ShadowRenderBuffer incomplete.");
+		}
+
+		Debug::GLError("ERROR: GLError on ShadowRenderBuffer Rebuild.");
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void ShadowRenderBuffer::Clear()
+	{
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+
 }

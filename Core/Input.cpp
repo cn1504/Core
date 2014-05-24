@@ -184,6 +184,11 @@ namespace Core
 			Settings::Video::FXAA = (Settings::Video::FXAA + 1) % 2;
 		}
 
+		else if (key == GLFW_KEY_C && action == GLFW_PRESS && GLFW_MOD_CONTROL & mods)
+		{
+			glfwSetWindowShouldClose(WindowPtr, 1);
+		}
+
 	}
 
 

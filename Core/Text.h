@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core.h"
-#include "Texture.h"
+#include "Font.h"
 #include "Shader.h"
 
 namespace Core
@@ -11,16 +11,15 @@ namespace Core
 	{
 	private:
 		std::string Txt;
-		Texture* Font;
+		Font* Font;
 		glm::vec2 Position;
 		glm::vec4 Color;
-		glm::vec2 CharDimensions;
 		GLuint VertexBuffer;
 
 		void GenerateGeometry();
 
 	public:
-		Text(std::string txt, int x, int y, glm::vec4 color, Texture* font, int charWidth, int charHeight);
+		Text(std::string txt, int x, int y, Core::Font* font, glm::vec4 color = glm::vec4(1.0,1.0,1.0,1.0));
 		~Text();
 
 		void UpdateText(std::string txt);

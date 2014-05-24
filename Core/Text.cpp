@@ -4,14 +4,12 @@
 namespace Core
 {
 
-	Text::Text(std::string txt, int x, int y, glm::vec4 color, Texture* font, int charWidth, int charHeight)
+	Text::Text(std::string txt, int x, int y, Core::Font* font, glm::vec4 color)
 	{
 		Txt = txt;
 		Font = font;
 		Position.x = (float)x;
 		Position.y = (float)y;
-		CharDimensions.x = (float)charWidth;
-		CharDimensions.y = (float)charHeight;
 		Color = color;
 
 		VertexBuffer = 0;
@@ -30,7 +28,7 @@ namespace Core
 	void Text::Render(Shader* shader)
 	{
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, Font->GetID());
+		glBindTexture(GL_TEXTURE_2D, Font->Texture->GetID());
 		glUniform1i(shader->GetUL("tex"), 0);
 		glUniform4fv(shader->GetUL("color"), 1, glm::value_ptr(Color));
 
@@ -51,8 +49,11 @@ namespace Core
 
 	void Text::UpdateText(std::string txt)
 	{
-		Txt = txt;
-		GenerateGeometry();
+		if (txt != Txt)
+		{
+			Txt = txt;
+			GenerateGeometry();
+		}
 	}
 
 	
@@ -62,30 +63,26 @@ namespace Core
 		
 		GLfloat x = Position.x;
 		GLfloat y = Position.y;
-
-		const int charPerRow = 16;
-		const int widthStride = 9;
-		const int heightStride = 0;
-
+		
 		for (auto& ch : Txt) {
 
 			// get ascii code as integer
 			int ascii = ch;
 
 			if (ascii == '\n') {
-				y = y + (CharDimensions.y - heightStride);
+				y = y + (Font->CharWidth - Font->SpacingHeight);
 				x = Position.x;
 
 				continue;
 			}
 
 
-			int atlas_col = (ascii - ' ') % charPerRow;
-			int atlas_row = (ascii - ' ') / charPerRow;
+			int atlas_col = (ascii - ' ') % Font->CharsPerRow;
+			int atlas_row = (ascii - ' ') / Font->CharsPerRow;
 
 			// work out texture coordinates in atlas
-			float offset_s = atlas_col * (1.0f / ((float)charPerRow));
-			float offset_t = atlas_row * (1.0f / ((float)charPerRow));
+			float offset_s = atlas_col * (1.0f / ((float)Font->CharsPerRow));
+			float offset_t = atlas_row * (1.0f / ((float)Font->CharsPerRow));
 
 
 
@@ -97,18 +94,18 @@ namespace Core
 			
 
 			glm::vec2 pos((x - wHalfWidth) / wHalfWidth, (wHeight - y - wHalfHeight) / wHalfHeight);
-			glm::vec2 dim(CharDimensions.x / wHalfWidth, CharDimensions.y / wHalfHeight);
+			glm::vec2 dim(Font->CharWidth / wHalfWidth, Font->CharHeight / wHalfHeight);
 
 
 			vertices.push_back(pos.x);
 			vertices.push_back(pos.y - dim.y);
 			vertices.push_back(offset_s);
-			vertices.push_back(offset_t + (1.0f / ((float)charPerRow)));
+			vertices.push_back(offset_t + (1.0f / ((float)Font->CharsPerRow)));
 			
 			vertices.push_back(pos.x + dim.x);
 			vertices.push_back(pos.y - dim.y);
-			vertices.push_back(offset_s + (1.0f / ((float)charPerRow)));
-			vertices.push_back(offset_t + (1.0f / ((float)charPerRow)));
+			vertices.push_back(offset_s + (1.0f / ((float)Font->CharsPerRow)));
+			vertices.push_back(offset_t + (1.0f / ((float)Font->CharsPerRow)));
 
 			vertices.push_back(pos.x);
 			vertices.push_back(pos.y);
@@ -122,15 +119,15 @@ namespace Core
 
 			vertices.push_back(pos.x + dim.x);
 			vertices.push_back(pos.y - dim.y);
-			vertices.push_back(offset_s + (1.0f / ((float)charPerRow)));
-			vertices.push_back(offset_t + (1.0f / ((float)charPerRow)));
+			vertices.push_back(offset_s + (1.0f / ((float)Font->CharsPerRow)));
+			vertices.push_back(offset_t + (1.0f / ((float)Font->CharsPerRow)));
 
 			vertices.push_back(pos.x + dim.x);
 			vertices.push_back(pos.y);
-			vertices.push_back(offset_s + (1.0f / ((float)charPerRow)));
+			vertices.push_back(offset_s + (1.0f / ((float)Font->CharsPerRow)));
 			vertices.push_back(offset_t);
 
-			x = x + (CharDimensions.x - widthStride);
+			x = x + (Font->CharWidth - Font->SpacingWidth);
 
 		}
 

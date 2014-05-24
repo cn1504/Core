@@ -34,6 +34,9 @@
 #pragma comment(lib, "libtexture.lib")
 
 #include <Bullet/btBulletDynamicsCommon.h>
+#include <Bullet/BulletSoftBody/btSoftRigidDynamicsWorld.h>
+#include <Bullet/BulletSoftBody/btSoftBodyRigidBodyCollisionConfiguration.h>
+#include <Bullet/BulletSoftBody/btSoftBodyHelpers.h>
 #pragma comment(lib, "Bullet.lib")
 
 #include "Exceptions.h"

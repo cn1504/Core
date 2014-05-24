@@ -27,6 +27,8 @@ namespace Core
 			float MaxBackgroundFPS;
 
 			bool ShowFPS;
+
+			float ShadowResolution;
 		}
 
 		namespace Audio
@@ -83,6 +85,7 @@ namespace Core
 			Video::MaxForegroundFPS = 120;
 			Video::MaxBackgroundFPS = 15;
 			Video::ShowFPS = true;
+			Video::ShadowResolution = 2048;
 
 			Audio::AudioEnabled = 1;
 			Audio::MusicEnabled = 1;			
@@ -126,6 +129,7 @@ namespace Core
 					else if (setting == "MaxForegroundFPS") { Video::MaxForegroundFPS = std::stof(value); }
 					else if (setting == "MaxBackgroundFPS") { Video::MaxBackgroundFPS = std::stof(value); }
 					else if (setting == "ShowFPS") { Video::ShowFPS = (std::stoi(value) > 0); }
+					else if (setting == "ShadowResolution") { Video::ShadowResolution = std::stof(value); }
 
 					else if (setting == "AudioEnabled") { Audio::AudioEnabled = std::stoi(value); }
 					else if (setting == "MusicEnabled") { Audio::MusicEnabled = std::stoi(value); }
@@ -176,6 +180,7 @@ namespace Core
 				settingsFile << "MaxForegroundFPS" << ": " << Video::MaxForegroundFPS << std::endl;
 				settingsFile << "MaxBackgroundFPS" << ": " << Video::MaxBackgroundFPS << std::endl;
 				settingsFile << "ShowFPS" << ": " << Video::ShowFPS << std::endl;
+				settingsFile << "ShadowResolution" << ": " << Video::ShadowResolution << std::endl;
 
 				settingsFile << "AudioEnabled" << ": " << Audio::AudioEnabled << std::endl;
 				settingsFile << "MusicEnabled" << ": " << Audio::MusicEnabled << std::endl;

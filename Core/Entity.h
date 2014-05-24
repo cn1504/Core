@@ -22,6 +22,7 @@ namespace Core
 		void Load();
 		void Update();
 		void AddComponent(Component* c);
+		void AddOrReplaceComponent(Component* a, Component* b);
 
 		bool IsRenderable();
 		Renderable* GetRenderable();

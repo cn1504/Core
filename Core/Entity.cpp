@@ -56,6 +56,32 @@ namespace Core
 	}
 
 
+	void Entity::AddOrReplaceComponent(Component* a, Component* b)
+	{
+		if (a != nullptr)
+		{
+			for (size_t i = 0; i < Components.size(); i++)
+			{
+				auto c = Components[i];
+
+				if (c == a)
+				{
+					Renderable* r = dynamic_cast<Renderable*>(b);
+					if (r != nullptr)
+						renderable = r;
+
+					delete c;
+					Components[i] = b;
+
+					return;
+				}
+			}
+		}
+
+		AddComponent(b);
+	}
+
+
 	bool Entity::IsRenderable()
 	{
 		return renderable != nullptr;

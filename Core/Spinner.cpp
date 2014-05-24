@@ -15,7 +15,7 @@ namespace Test
 
 	void Spinner::Load()
 	{
-		FB = Entity->GetComponent<Core::FreeBody>();
+		FB = Entity->GetComponent<Core::RigidBody>();
 		TimeSinceLastImpulse = 0.0f;
 		i = 0;
 	}

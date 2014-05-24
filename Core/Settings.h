@@ -29,6 +29,8 @@ namespace Core
 			extern float MaxBackgroundFPS;
 
 			extern bool ShowFPS;
+			
+			extern float ShadowResolution;
 		}
 
 		namespace Audio 

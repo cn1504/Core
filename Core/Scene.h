@@ -6,6 +6,7 @@
 #include "Mesh.h"
 #include "Camera.h"
 #include "DynamicsWorld.h"
+#include "Text.h"
 
 namespace Core
 {
@@ -18,6 +19,7 @@ namespace Core
 
 		RenderBuffer* GeometryRB;
 		RenderBuffer* LightRB;
+		RenderBuffer* ShadowRB;
 		RenderBuffer* BufferCombineRB;
 
 		// SMAA Textures
@@ -39,6 +41,8 @@ namespace Core
 		Mesh* Cube;
 		Mesh* Sphere;
 		Mesh* Cylinder;
+
+		Text* fpsText;
 
 		// Camera Matrix Buffer
 		Camera* Camera;

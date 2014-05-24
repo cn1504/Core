@@ -1,36 +1,46 @@
 #pragma once
 #include "Core.h"
-#include "FreeBody.h"
+#include "RigidBody.h"
+#include "SoftBody.h"
 
 class btThreadSupportInterface;
 
 namespace Core
 {
 	class Window;
-	class FreeBody;
+	class RigidBody;
+	class SoftBody;
 
 	class DynamicsWorld
 	{
 	private:		
-		btDefaultCollisionConfiguration* collisionConfiguration;
+		btSoftBodyRigidBodyCollisionConfiguration* collisionConfiguration;
 		btCollisionDispatcher* dispatcher;
 		btBroadphaseInterface* overlappingPairCache;
 		btSequentialImpulseConstraintSolver* solver;
-		btDiscreteDynamicsWorld* dynamicsWorld;
+		btSoftRigidDynamicsWorld* dynamicsWorld;
 		
 		btThreadSupportInterface*		m_threadSupportCollision;
 		btThreadSupportInterface*		m_threadSupportSolver;
 
-		std::vector<FreeBody*> FreeBodies;
+		std::vector<RigidBody*> RigidBodies;
+		std::vector<SoftBody*> SoftBodies;
 		btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
+		std::unordered_map<btCollisionObject*, FreeBody*> BodyMap;
+
 	public:
+		btSoftBodyWorldInfo	softBodyWorldInfo;
+
 		DynamicsWorld();
 		~DynamicsWorld();
 
-		void AddBody(FreeBody* body);
+		void AddBody(RigidBody* body);
+		void AddBody(SoftBody* body);
 
 		void Update();
+
+		void GetAllEntitiesWithinBroadphase(btCollisionObject& shape, std::vector<Entity*> &entities);
 	};
 
 }

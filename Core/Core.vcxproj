@@ -82,7 +82,9 @@
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="DynamicsWorld.cpp" />
     <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="FreeBody.cpp" />
+    <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Kernel.cpp" />
     <ClCompile Include="LightSource.cpp" />
@@ -94,6 +96,7 @@
     <ClCompile Include="ScreenQuad.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="SoftBody.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Spinner.cpp" />
     <ClCompile Include="Text.cpp" />
@@ -113,7 +116,9 @@
     <ClInclude Include="DynamicsWorld.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Exceptions.h" />
+    <ClInclude Include="Font.h" />
     <ClInclude Include="FreeBody.h" />
+    <ClInclude Include="RigidBody.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Kernel.h" />
     <ClInclude Include="LightSource.h" />
@@ -126,6 +131,7 @@
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Shape.h" />
+    <ClInclude Include="SoftBody.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Spinner.h" />
     <ClInclude Include="Text.h" />

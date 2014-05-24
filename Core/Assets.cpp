@@ -7,7 +7,16 @@ namespace Core
 		std::unordered_map<std::string, Mesh*> Meshes;
 		std::unordered_map<std::string, Material*> Materials;
 		std::unordered_map<std::string, Texture*> Textures;
+		std::unordered_map<std::string, Font*> Fonts;
 		
+		
+		void LoadStandardAssets()
+		{
+			CreateStandardTextures();
+			CreateStandardFonts();
+			CreateStandardMaterials();
+		}
+
 
 		void CreateStandardMaterials()
 		{
@@ -341,6 +350,13 @@ namespace Core
 		}
 
 
+		void CreateStandardFonts()
+		{
+			Font* f = new Font(Textures["Consolas16"], 16, 16, 16, 9, 0);
+			Fonts["Consolas16"] = f;
+		}
+
+
 		void Clear()
 		{
 			for (auto c : Meshes)
@@ -349,6 +365,11 @@ namespace Core
 			}
 
 			for (auto c : Materials)
+			{
+				delete c.second;
+			}
+
+			for (auto c : Fonts)
 			{
 				delete c.second;
 			}

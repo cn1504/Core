@@ -8,6 +8,8 @@
 #include "LightSource.h"
 #include "Text.h"
 
+#include "BunnyMesh.h"
+
 namespace Core
 {
 
@@ -18,8 +20,10 @@ namespace Core
 		// Load RenderBuffers
 		GeometryRB = new RenderBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 4, true);
 		LightRB = new RenderBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 2, false);
+		ShadowRB = new ShadowRenderBuffer();
 		BufferCombineRB = new RenderBuffer(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 1, false);
 		Debug::GLError("ERROR: Could not complete renderbuffers.");
+		ShadowRB->Rebuild();
 
 		// Load Shader Programs
 		NOAAShader = new Shader("Shaders/fspassthrough.vert", "Shaders/noaa.frag");
@@ -54,8 +58,8 @@ namespace Core
 		Shapes::Cylinder cylinder; 
 		Cylinder = Assets::Meshes["Cylinder"] = cylinder.GenerateMesh();
 
-		Assets::CreateStandardMaterials();
-		Assets::CreateStandardTextures();
+		Assets::LoadStandardAssets();
+		fpsText = new Text("FPS: " + std::to_string((int)Time::FPS), 10, Settings::Window::Height - 20, Assets::Fonts["Consolas16"]);
 
 		// Load Scene Objects
 		auto c = new Entity();
@@ -69,7 +73,7 @@ namespace Core
 		e->Transform.Position = glm::vec3(-1.0f, 0.5f, -1.0);
 		e->AddComponent(Assets::Meshes["Cube"]);
 		e->AddComponent(Assets::Materials["Silver"]);
-		auto fb = new FreeBody(PhysicsWorld, new Shapes::Box, Assets::Materials["Silver"], true);
+		auto fb = new RigidBody(PhysicsWorld, Assets::Materials["Silver"], new Shapes::Box);
 		e->AddComponent(fb);
 		Entities.push_back(e);
 		
@@ -83,9 +87,8 @@ namespace Core
 					e->Transform.Position = glm::vec3(2.0f * i, 1.0f + 2.0f * j, 2.0f * k);
 					e->AddComponent(Assets::Meshes["Cube"]);
 					e->AddComponent(Assets::Materials["Brass"]);
-					fb = new FreeBody(PhysicsWorld, new Shapes::Box, Assets::Materials["Brass"], true);
+					fb = new RigidBody(PhysicsWorld, Assets::Materials["Brass"], new Shapes::Box);
 					e->AddComponent(fb);
-					//e->AddComponent(new Test::Spinner());
 					Entities.push_back(e);
 				}
 			}
@@ -95,7 +98,7 @@ namespace Core
 		e->Transform.Position = glm::vec3(1.0f, 2.0f, -2.0f);
 		e->AddComponent(Assets::Meshes["Sphere"]);
 		e->AddComponent(Assets::Materials["Gold"]); 
-		fb = new FreeBody(PhysicsWorld, new Shapes::Sphere, Assets::Materials["Gold"], true);
+		fb = new RigidBody(PhysicsWorld, Assets::Materials["Gold"], new Shapes::Sphere);
 		e->AddComponent(fb);
 		Entities.push_back(e);
 
@@ -104,7 +107,7 @@ namespace Core
 		e->Transform.Scale = glm::vec3(1.0f, 2.0f, 1.0f);
 		e->AddComponent(Assets::Meshes["Cylinder"]);
 		e->AddComponent(Assets::Materials["Copper"]);
-		fb = new FreeBody(PhysicsWorld, new Shapes::Cylinder, Assets::Materials["Copper"], true);
+		fb = new RigidBody(PhysicsWorld, Assets::Materials["Copper"], new Shapes::Cylinder);
 		e->AddComponent(fb);
 		Entities.push_back(e);
 
@@ -113,7 +116,7 @@ namespace Core
 		e->Transform.Scale = glm::vec3(100.0f, 1.0f, 100.0f);
 		e->AddComponent(Assets::Meshes["Cube"]);
 		e->AddComponent(Assets::Materials["Concrete"]);
-		fb = new FreeBody(PhysicsWorld, new Shapes::Box, Assets::Materials["Concrete"], false);
+		fb = new RigidBody(PhysicsWorld, Assets::Materials["Concrete"], new Shapes::Box, RigidBody::Type::STATIC);
 		e->AddComponent(fb);
 		Entities.push_back(e);
 
@@ -150,7 +153,7 @@ namespace Core
 
 		e = new Entity();
 		e->Transform.Position = glm::vec3(-2.0f, 1.5f, 0.0f);
-		e->Transform.Scale = glm::vec3(15.0f, 15.0f, 15.0f);
+		e->Transform.Scale = glm::vec3(30.0f, 30.0f, 30.0f);
 		e->AddComponent(new LightSource(glm::vec3(1.0f, 1.0f, 1.0f)));
 		Entities.push_back(e);
 
@@ -160,9 +163,31 @@ namespace Core
 		e->Transform.Scale = glm::vec3(0.5f, 1.8f, 0.5f);
 		e->AddComponent(Assets::Meshes["Cube"]);
 		e->AddComponent(Assets::Materials["HumanSkin"]);
-		fb = new FreeBody(PhysicsWorld, new Shapes::Box, Assets::Materials["HumanSkin"], false);
+		fb = new RigidBody(PhysicsWorld, Assets::Materials["HumanSkin"], new Shapes::Box);
 		e->AddComponent(fb);
 		Window->Input->SetPlayerEntity(e);
+		Entities.push_back(e);
+
+		// Soft Box Test
+		e = new Entity();
+		e->AddComponent(Assets::Materials["Aluminum"]);
+
+		btSoftBody*	psb = btSoftBodyHelpers::CreateFromTriMesh(PhysicsWorld->softBodyWorldInfo, gVerticesBunny,
+			&gIndicesBunny[0][0],
+			BUNNY_NUM_TRIANGLES);
+		btSoftBody::Material*	pm = psb->appendMaterial();
+		pm->m_kLST = 0.5;
+		pm->m_flags -= btSoftBody::fMaterial::DebugDraw;
+		psb->generateBendingConstraints(2, pm);
+		psb->m_cfg.piterations = 2;
+		psb->m_cfg.kDF = 0.5;
+		psb->randomizeConstraints();
+		psb->scale(btVector3(2, 2, 2));
+		psb->translate(btVector3(-3, 2, -3));
+		psb->setTotalMass(100, true);
+
+		SoftBody* sb = new SoftBody(PhysicsWorld, Assets::Materials["Aluminum"], psb);
+		e->AddComponent(sb);
 		Entities.push_back(e);
 
 
@@ -178,6 +203,7 @@ namespace Core
 	{
 		delete GeometryRB;
 		delete LightRB;
+		delete ShadowRB;
 		delete BufferCombineRB; 
 
 		delete NOAAShader;
@@ -200,7 +226,11 @@ namespace Core
 
 	void Scene::Update()
 	{
-		// Update all entities
+		// Order of Operations:
+		// 1. Update all entities
+		// 2. Tick Physics
+		// 3. Render Scene
+
 		for (auto e : Entities)
 			e->Update();
 		
@@ -209,12 +239,9 @@ namespace Core
 		P = Camera->GetProjectionMatrix();
 		V = Camera->GetViewMatrix();
 
-		
-
 		RenderGeometry();
 		RenderLight();
 		RenderPost();
-		
 	}
 	
 
@@ -285,6 +312,7 @@ namespace Core
 				}
 			}
 		}
+		
 	}
 
 
@@ -411,8 +439,8 @@ namespace Core
 		if (Settings::Video::ShowFPS)
 		{
 			FontShader->MakeCurrent();
-			Text fpsText("FPS: " + std::to_string((int)Time::FPS), 10, Settings::Window::Height - 20, glm::vec4(1.0, 1.0, 1.0, 1.0), Assets::Textures["Consolas16"], 16, 16);
-			fpsText.Render(FontShader);
+			fpsText->UpdateText("FPS: " + std::to_string((int)Time::FPS));
+			fpsText->Render(FontShader);
 		}
 
 		//glDisable(GL_BLEND);

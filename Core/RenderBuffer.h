@@ -7,7 +7,7 @@ namespace Core
 
 	class RenderBuffer
 	{
-	private:
+	protected:
 		GLuint FBO;
 		std::vector<Texture> ColorTextures; 
 		bool HasDepthTexture;
@@ -16,14 +16,26 @@ namespace Core
 
 	public:
 		RenderBuffer(glm::vec4 clearColor, int colorBufferCount, bool hasDepthTexture);
-		~RenderBuffer();
+		virtual ~RenderBuffer();
 
-		void MakeCurrent();
-		void Rebuild();
-		void Clear();
+		virtual void MakeCurrent();
+		virtual void Rebuild();
+		virtual void Clear();
 
 		GLuint GetOutputTexture(int i);
 		GLuint GetDepthTexture();
+	};
+
+
+	class ShadowRenderBuffer : public RenderBuffer
+	{
+	public:
+		ShadowRenderBuffer();
+		virtual ~ShadowRenderBuffer();
+
+		virtual void MakeCurrent();
+		virtual void Rebuild();
+		virtual void Clear();
 	};
 
 }
