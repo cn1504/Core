@@ -27,20 +27,21 @@ namespace Core
 		std::vector<SoftBody*> SoftBodies;
 		btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
+	public:
 		std::unordered_map<btCollisionObject*, FreeBody*> BodyMap;
 
-	public:
 		btSoftBodyWorldInfo	softBodyWorldInfo;
 
 		DynamicsWorld();
 		~DynamicsWorld();
 
+		void AddBody(btCollisionObject* body);
 		void AddBody(RigidBody* body);
 		void AddBody(SoftBody* body);
 
 		void Update();
 
-		void GetAllEntitiesWithinBroadphase(btCollisionObject& shape, std::vector<Entity*> &entities);
+		void GetAllEntitiesWithinBroadphase(btCollisionShape& shape, btTransform& t, std::vector<Entity*> &entities);
 	};
 
 }

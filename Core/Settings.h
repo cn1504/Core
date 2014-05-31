@@ -30,7 +30,7 @@ namespace Core
 
 			extern bool ShowFPS;
 			
-			extern float ShadowResolution;
+			extern int ShadowResolution;
 		}
 
 		namespace Audio 
@@ -47,8 +47,6 @@ namespace Core
 
 		namespace Game
 		{
-			extern int GPUPhysics;
-			extern int CLDevice;
 		}
 
 		namespace Controls
@@ -63,6 +61,7 @@ namespace Core
 		namespace Misc
 		{
 			extern int VerboseLogging;
+			extern bool ShowConsole;
 		}
 
 		void Init(int argc, char* argv[]);

@@ -10,6 +10,8 @@ namespace Core
 
 		DiffuseColor = glm::vec3(1.0f);
 		Density = 0.0f;
+
+		EmanativeIntensity = 0.0f;
 	}
 
 

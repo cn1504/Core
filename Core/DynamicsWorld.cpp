@@ -186,46 +186,53 @@ namespace Core
 	}
 
 
-	struct BroadphaseCallback : public btBroadphaseAabbCallback {
-		btCollisionObject *m_collisionObject;
-		std::vector<Entity*> *m_entities;
-		short int m_collisionFilterGroup, m_collisionFilterMask;
-		std::unordered_map<btCollisionObject*, FreeBody*> *BodyMap;
-
-		BroadphaseCallback(std::unordered_map<btCollisionObject*, FreeBody*> &BodyMap, btCollisionObject *me,
-			std::vector<Entity*> &entities, short int collisionGroup, short int collisionMask) :
-			BodyMap(&BodyMap), m_collisionObject(me), m_entities(&entities), m_collisionFilterGroup(collisionGroup), m_collisionFilterMask(collisionMask) { }
-
-		inline bool needsCollision(btBroadphaseProxy* proxy0) const {
-			bool collides = (proxy0->m_collisionFilterGroup & m_collisionFilterMask) != 0;
-			collides = collides && (m_collisionFilterGroup & proxy0->m_collisionFilterMask);
+	struct BroadphaseAabbCallback : public btBroadphaseAabbCallback {
+		btAlignedObjectArray < btCollisionObject* >& m_collisionObjectArray;
+		short int m_collisionFilterGroup, m_collisionFilterMask;// Optional
+		BroadphaseAabbCallback(btAlignedObjectArray < btCollisionObject* >& collisionObjectArray, short int collisionGroup = btBroadphaseProxy::DefaultFilter, short int collisionMask = btBroadphaseProxy::AllFilter) :
+			m_collisionObjectArray(collisionObjectArray), m_collisionFilterGroup(collisionGroup), m_collisionFilterMask(collisionMask)
+		{
+			m_collisionObjectArray.resize(0);
+		}
+		// Optional:
+		SIMD_FORCE_INLINE bool needsCollision(const btBroadphaseProxy* proxy) const {
+			bool collides = (proxy->m_collisionFilterGroup & m_collisionFilterMask) != 0;
+			collides = collides && (m_collisionFilterGroup & proxy->m_collisionFilterMask);
 			return collides;
 		}
 
 		virtual bool process(const btBroadphaseProxy *proxy) {
-			btCollisionObject *collisionObject = (btCollisionObject *)proxy->m_clientObject;
-			
-			// don't add self to results
-			if (collisionObject == m_collisionObject)
-				return true;
+			// Basically this is the only method to implement in btBroadphaseAabbCallback.
+			// If we don't need any filtering/excluding objects, we can just write:
+			// m_collisionObjectArray.push_back((btCollisionObject *)proxy->m_clientObject);return true;
+			// and we're done
 
-			// check collision filters and masks
-			if (needsCollision(collisionObject->getBroadphaseHandle())) {
-				
-				m_entities->push_back((*BodyMap)[collisionObject]->Entity);
-
-			}
+			if (needsCollision(proxy)) m_collisionObjectArray.push_back((btCollisionObject *)proxy->m_clientObject);
 			return true;
 		}
 	};
 
-	void DynamicsWorld::GetAllEntitiesWithinBroadphase(btCollisionObject& shape, std::vector<Entity*> &entities)
+	void DynamicsWorld::GetAllEntitiesWithinBroadphase(btCollisionShape& shape, btTransform& t, std::vector<Entity*> &entities)
 	{
 		// Get a list of entities that could be intersecting with the shape object using bullet's broadphase test
 		btVector3 min, max;
-		shape.getCollisionShape()->getAabb(shape.getWorldTransform(), min, max);
-		BroadphaseCallback callback(BodyMap, &shape, entities, 0, 0);
+		shape.getAabb(t, min, max);
+
+		btAlignedObjectArray < btCollisionObject* > collisionObjectArray;
+		BroadphaseAabbCallback callback(collisionObjectArray);
 		dynamicsWorld->getBroadphase()->aabbTest(min, max, callback);
+
+		
+		for (int i = 0; i < collisionObjectArray.size(); i++)
+		{
+			entities.push_back(BodyMap[collisionObjectArray[i]]->Entity);
+		}
+	}
+
+	
+	void DynamicsWorld::AddBody(btCollisionObject* body)
+	{
+		dynamicsWorld->addCollisionObject(body);
 	}
 
 }

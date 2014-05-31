@@ -60,14 +60,14 @@ namespace Core
 		//clDevices = clContext->getInfo<CL_CONTEXT_DEVICES>();
 		//Debug::CLError(clDevices.size() != 0 ? CL_SUCCESS : -1, "No OpenCL devices found.");
 
-		clQueue = new cl::CommandQueue(*clContext, clDevices[Settings::Game::CLDevice], 0, &err);
+		clQueue = new cl::CommandQueue(*clContext, clDevices[0], 0, &err);
 		Debug::CLError(err, "Error creating OpenCL command queue.");
 
 		if (Settings::Misc::VerboseLogging)
 		{
 			std::string platformVendor;
 			clPlatformList[0].getInfo((cl_platform_info)CL_PLATFORM_VENDOR, &platformVendor);
-			Debug::Log("Using Platform: " + std::to_string(Settings::Game::CLDevice + 1) + ". " + platformVendor);
+			Debug::Log("Using Platform: " + std::to_string(1) + ". " + platformVendor);
 			Debug::Log("");
 		}
 

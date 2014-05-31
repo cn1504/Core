@@ -29,6 +29,8 @@ namespace Core
 		int JoystickCount;
 		int Joystick;	// Current Joystick	
 
+		std::string consoleOutput;
+
 	public:
 		Input(Core::Window* window, GLFWwindow* ptr);
 		~Input();

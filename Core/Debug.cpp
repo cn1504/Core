@@ -1,4 +1,5 @@
 #include "Debug.h"
+#include "AudioListener.h"
 
 namespace Core
 {
@@ -40,6 +41,7 @@ namespace Core
 
 		void Close() 
 		{
+			AudioListener.Close();
 			glfwTerminate();
 			Settings::Close();
 			logFile.close();

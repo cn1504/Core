@@ -1,5 +1,6 @@
 #include "Core.h"
 #include "Window.h"
+#include "AudioListener.h"
 
 int main(int argc, char* argv[])
 {
@@ -14,6 +15,7 @@ int main(int argc, char* argv[])
 
 		Core::Settings::Init(argc, argv);
 		Core::Time::Init();
+		Core::AudioListener.Init();
 
 
 		if (Core::Settings::Misc::VerboseLogging) {

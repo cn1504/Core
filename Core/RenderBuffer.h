@@ -13,9 +13,11 @@ namespace Core
 		bool HasDepthTexture;
 		Texture DepthTexture;
 		glm::vec4 ClearColor;
+		float Scale;
 
 	public:
 		RenderBuffer(glm::vec4 clearColor, int colorBufferCount, bool hasDepthTexture);
+		RenderBuffer(glm::vec4 clearColor, int colorBufferCount, bool hasDepthTexture, float scale);
 		virtual ~RenderBuffer();
 
 		virtual void MakeCurrent();

@@ -19,6 +19,8 @@ namespace Core
 		glm::vec3 SpecularColor;
 		float SpecularIntensity;
 		float SpecularHardness;
+		glm::vec3 EmanativeColor;
+		float EmanativeIntensity;
 		float IndexOfRefraction;
 
 		float Density;

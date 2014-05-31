@@ -27,8 +27,8 @@ void main(void)
 	
 	// Calculate light amount
 	vec3 lightDir   = LightPosition - pos;
-	float dist      = length(lightDir) / LightRadius;	
-	float atten     = clamp(1.0 - dist * dist, 0.0, 1.0);
+	float dist      = dot(lightDir, lightDir);	
+	float atten     = clamp(1.0 - dist / (LightRadius * LightRadius), 0.0, 1.0);
 	vec3 incident   = normalize(lightDir);
 	
 	if(atten == 0.0) 

@@ -28,7 +28,7 @@ namespace Core
 
 			bool ShowFPS;
 
-			float ShadowResolution;
+			int ShadowResolution;
 		}
 
 		namespace Audio
@@ -45,8 +45,6 @@ namespace Core
 
 		namespace Game
 		{
-			int GPUPhysics;
-			int CLDevice;
 		}
 
 		namespace Controls
@@ -58,7 +56,8 @@ namespace Core
 
 		namespace Misc
 		{
-			int VerboseLogging;
+			int VerboseLogging; 
+			bool ShowConsole;
 		}
 
 		namespace
@@ -95,10 +94,8 @@ namespace Core
 			Audio::AmbientEffectsVolume = 0.8f;
 			Audio::VoiceVolume = 1.0f;
 			
-			Game::GPUPhysics = 1;
-			Game::CLDevice = 0;
-
 			Misc::VerboseLogging = 1;
+			Misc::ShowConsole = 1;
 
 			// Read settings file
 			settingsFile.open(settingsFilename, std::ios::in);
@@ -129,7 +126,7 @@ namespace Core
 					else if (setting == "MaxForegroundFPS") { Video::MaxForegroundFPS = std::stof(value); }
 					else if (setting == "MaxBackgroundFPS") { Video::MaxBackgroundFPS = std::stof(value); }
 					else if (setting == "ShowFPS") { Video::ShowFPS = (std::stoi(value) > 0); }
-					else if (setting == "ShadowResolution") { Video::ShadowResolution = std::stof(value); }
+					else if (setting == "ShadowResolution") { Video::ShadowResolution = std::stoi(value); }
 
 					else if (setting == "AudioEnabled") { Audio::AudioEnabled = std::stoi(value); }
 					else if (setting == "MusicEnabled") { Audio::MusicEnabled = std::stoi(value); }
@@ -138,11 +135,9 @@ namespace Core
 					else if (setting == "SoundEffectsVolume") { Audio::SoundEffectsVolume = std::stof(value); }
 					else if (setting == "AmbientEffectsVolume") { Audio::AmbientEffectsVolume = std::stof(value); }
 					else if (setting == "VoiceVolume") { Audio::VoiceVolume = std::stof(value); }
-
-					else if (setting == "GPUPhysics") { Game::GPUPhysics = std::stoi(value); }
-					else if (setting == "CLDevice") { Game::CLDevice = std::stoi(value); }
-
+					
 					else if (setting == "VerboseLogging") { Misc::VerboseLogging = std::stoi(value); }
+					else if (setting == "ShowConsole") { Misc::ShowConsole = (std::stoi(value) > 0); }
 
 					setting = "";
 					value = "";
@@ -189,11 +184,9 @@ namespace Core
 				settingsFile << "SoundEffectsVolume" << ": " << Audio::SoundEffectsVolume << std::endl;
 				settingsFile << "AmbientEffectsVolume" << ": " << Audio::AmbientEffectsVolume << std::endl;
 				settingsFile << "VoiceVolume" << ": " << Audio::VoiceVolume << std::endl;
-
-				settingsFile << "GPUPhysics" << ": " << Game::GPUPhysics << std::endl;
-				settingsFile << "CLDevice" << ": " << Game::CLDevice << std::endl;
-
+				
 				settingsFile << "VerboseLogging" << ": " << Misc::VerboseLogging << std::endl;
+				settingsFile << "ShowConsole" << ": " << Misc::ShowConsole << std::endl;
 			}
 			else
 			{

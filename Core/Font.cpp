@@ -3,11 +3,11 @@
 namespace Core
 {
 
-	Font::Font(Core::Texture* texture, float charWidth, float charHeight, int charsPerRow, float spacingWidth, int spacingHeight)
+	Font::Font(Core::Texture* texture, float charWidth, float charHeight, int charsPerRow, float spacingWidth, float spacingHeight)
 	{
 		Texture = texture;
 		CharWidth = charWidth;
-		CharHeight = charsPerRow;
+		CharHeight = charHeight;
 		CharsPerRow = charsPerRow;
 		SpacingWidth = spacingWidth;
 		SpacingHeight = spacingHeight;

@@ -42,7 +42,7 @@ namespace Core
 			0,                                // stride
 			(void*)0                          // array buffer offset
 			);
-		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)Txt.length() * 6);
+		glDrawArrays(GL_TRIANGLES, 0, ((GLsizei)Txt.length() - newLines) * 6);
 		glDisableVertexAttribArray(0);
 	}
 
@@ -56,9 +56,16 @@ namespace Core
 		}
 	}
 
+
+	std::string Text::GetText()
+	{
+		return Txt;
+	}
+
 	
 	void Text::GenerateGeometry()
 	{
+		newLines = 0;
 		std::vector<GLfloat> vertices;
 		
 		GLfloat x = Position.x;
@@ -72,7 +79,7 @@ namespace Core
 			if (ascii == '\n') {
 				y = y + (Font->CharWidth - Font->SpacingHeight);
 				x = Position.x;
-
+				newLines++;
 				continue;
 			}
 

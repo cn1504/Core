@@ -227,6 +227,8 @@ namespace Core
 			humanSkin->Density = 2.2e3f;
 			humanSkin->YieldStrength = 15.0e6f;
 			humanSkin->UltimateStrength = 20.0e6f;
+			humanSkin->EmanativeColor = glm::vec3(1.0, 0.0, 0.0);
+			humanSkin->EmanativeIntensity = 0.4f;
 
 			Material* cork = new Material("Cork");
 			cork->DiffuseColor = glm::vec3(0.937, 0.753, 0.573);

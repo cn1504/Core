@@ -9,6 +9,14 @@ namespace Core
 		ColorTextures.resize(colorBufferCount);
 		ClearColor = clearColor;
 		HasDepthTexture = hasDepthTexture;
+		Scale = 1.0f;
+	}
+
+
+	RenderBuffer::RenderBuffer(glm::vec4 clearColor, int colorBufferCount, bool hasDepthTexture, float scale)
+		: RenderBuffer(clearColor, colorBufferCount, hasDepthTexture)
+	{
+		Scale = scale;
 	}
 
 
@@ -21,13 +29,13 @@ namespace Core
 	void RenderBuffer::MakeCurrent()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-		glViewport(0, 0, Settings::Window::Width, Settings::Window::Height);
+		glViewport(0, 0, (int)(Settings::Window::Width * Scale), (int)(Settings::Window::Height * Scale));
 	}
 
 
 	void RenderBuffer::Clear()
 	{
-		glClearColor(ClearColor.x, ClearColor.y, ClearColor.z, ClearColor.a);
+		glClearColor(ClearColor.x, ClearColor.y, ClearColor.z, ClearColor.w);
 		glClear((HasDepthTexture) ? (GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT) : GL_COLOR_BUFFER_BIT);
 	}
 
@@ -46,9 +54,9 @@ namespace Core
 		buffers[8] = GL_COLOR_ATTACHMENT8;
 		
 		if (HasDepthTexture)
-			DepthTexture.CreateTexture(true, Settings::Window::Width, Settings::Window::Height);
+			DepthTexture.CreateTexture(true, (int)(Settings::Window::Width * Scale), (int)(Settings::Window::Height * Scale));
 		for (int i = 0; i < ColorTextures.size(); i++)
-			ColorTextures[i].CreateTexture(false, Settings::Window::Width, Settings::Window::Height);
+			ColorTextures[i].CreateTexture(false, (int)(Settings::Window::Width * Scale), (int)(Settings::Window::Height * Scale));
 
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, DepthTexture.GetID(), 0);
@@ -86,7 +94,6 @@ namespace Core
 
 	ShadowRenderBuffer::~ShadowRenderBuffer()
 	{
-		glDeleteFramebuffers(1, &FBO);
 	}
 
 	void ShadowRenderBuffer::MakeCurrent()
@@ -97,16 +104,8 @@ namespace Core
 
 	void ShadowRenderBuffer::Rebuild()
 	{
-		DepthTexture.CreateTexture(true, Settings::Video::ShadowResolution, Settings::Video::ShadowResolution);
-
 		glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, DepthTexture.GetID(), 0);
 		glDrawBuffer(GL_NONE);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		{
-			Debug::Error("ShadowRenderBuffer incomplete.");
-		}
 
 		Debug::GLError("ERROR: GLError on ShadowRenderBuffer Rebuild.");
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

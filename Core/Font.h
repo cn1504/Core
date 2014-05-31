@@ -14,7 +14,7 @@ namespace Core
 		float SpacingWidth;
 		float SpacingHeight;
 
-		Font(Core::Texture* texture, float charWidth, float charHeight, int charsPerRow, float spacingWidth, int spacingHeight);
+		Font(Core::Texture* texture, float charWidth, float charHeight, int charsPerRow, float spacingWidth, float spacingHeight);
 		~Font();
 	};
 }

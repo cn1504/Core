@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <queue>
 #include <unordered_map>
 #include <iomanip>
 #include <memory>
@@ -22,6 +23,11 @@
 
 #include <CL/cl.hpp>
 #pragma comment(lib, "OpenCL.lib")
+
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
+#pragma comment(lib, "libOpenAL32.dll.a")
 
 #include <GLFW/glfw3.h>
 #pragma comment(lib, "glfw3.lib")

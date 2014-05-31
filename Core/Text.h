@@ -11,6 +11,7 @@ namespace Core
 	{
 	private:
 		std::string Txt;
+		int newLines;
 		Font* Font;
 		glm::vec2 Position;
 		glm::vec4 Color;
@@ -23,6 +24,7 @@ namespace Core
 		~Text();
 
 		void UpdateText(std::string txt);
+		std::string GetText();
 
 		void Render(Shader* shader);
 	};

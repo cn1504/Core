@@ -33,7 +33,10 @@ namespace Core
 		if (Settings::Misc::VerboseLogging)
 		{
 			Debug::Log("Joystick count: " + std::to_string(JoystickCount));
-			Debug::Log("Current joystick: " + std::to_string(Joystick) + ". " + glfwGetJoystickName(Joystick));
+			if (glfwJoystickPresent(GLFW_JOYSTICK_1 + Joystick))
+			{
+				Debug::Log("Current joystick: " + std::to_string(Joystick) + ". " + glfwGetJoystickName(Joystick));
+			}
 			Debug::Log("");
 		}
 	}
@@ -137,6 +140,28 @@ namespace Core
 				if (joyAxes[4] > joyDeadZone || joyAxes[4] < -joyDeadZone)
 				{
 					CameraRotation.y -= joyAxes[4] * joyTurnSpeed * Time::RealtimeDelta;
+				}
+			}
+
+			if (Settings::Misc::VerboseLogging)
+			{
+				std::string text = "Gamepad Input: ";
+
+				for (int i = 0; i < joyButtonsCount; i++)
+				{
+					if (joyButtons[i] == GLFW_PRESS)
+					{
+						if (text.size() > 15)
+							text += ", ";
+
+						text += std::to_string(i);
+					}
+				}
+
+				if (text != consoleOutput)
+				{
+					Window->Scene->AppendConsole(text);
+					consoleOutput = text;
 				}
 			}
 		}
