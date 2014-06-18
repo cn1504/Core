@@ -54,7 +54,7 @@ namespace Core
 
 		Text* fpsText;
 		Text* consoleText;
-		std::queue<std::string> consoleLines;
+		std::deque<std::string> consoleLines;
 
 		// Camera Matrix Buffer
 		Camera* Camera;

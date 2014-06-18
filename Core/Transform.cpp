@@ -18,9 +18,25 @@ namespace Core
 	}
 
 
+	glm::vec3 Transform::WSUp()
+	{
+		return Rotation * Up;
+	}
+
+
+	glm::vec3 Transform::WSForward()
+	{
+		return Rotation * Forward;
+	}
+
+
 	glm::mat4 Transform::ToMatrix()
 	{
-		return glm::translate(glm::mat4(), Position) * glm::toMat4(Rotation) * glm::scale(glm::mat4(), Scale);
+		auto t = glm::translate(glm::mat4(), Position);
+		auto r = glm::toMat4(Rotation);
+		auto s = glm::scale(Scale);
+		
+		return t * r * s;
 	}
 
 }

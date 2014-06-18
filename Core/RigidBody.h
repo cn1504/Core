@@ -20,6 +20,7 @@ namespace Core
 		btRigidBody* GetBody();
 		
 		float GetMass();
+		glm::vec3 GetVelocity();
 		void SetGravity(const glm::vec3& g);		
 		void ApplyForce(const glm::vec3& force, const glm::vec3& location);
 		void ApplyCenterForce(glm::vec3 force);

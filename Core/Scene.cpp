@@ -427,7 +427,7 @@ namespace Core
 
 		glUniform1i(BlurShader->GetUL("blurAmount"), 32);
 		glUniform1f(BlurShader->GetUL("blurScale"), 2.0f);
-		glUniform1f(BlurShader->GetUL("blurStrength"), 1.0f);
+		glUniform1f(BlurShader->GetUL("blurStrength"), 0.6f);
 
 		glUniform1i(BlurShader->GetUL("orientation"), 0);
 
@@ -442,7 +442,7 @@ namespace Core
 
 		glUniform1i(BlurShader->GetUL("blurAmount"), 32);
 		glUniform1f(BlurShader->GetUL("blurScale"), 2.0f);
-		glUniform1f(BlurShader->GetUL("blurStrength"), 1.0f);
+		glUniform1f(BlurShader->GetUL("blurStrength"), 0.6f);
 
 		glUniform1i(BlurShader->GetUL("orientation"), 1);
 
@@ -572,23 +572,18 @@ namespace Core
 
 	void Scene::AppendConsole(std::string msg)
 	{
-		consoleLines.push(msg);
+		consoleLines.push_back(msg);
 		if (consoleLines.size() > 3)
 		{
-			consoleLines.pop();
+			consoleLines.pop_front();
 		}
 
 		std::string text = "";
-		std::queue<std::string> temp;
-		size_t count = consoleLines.size();
-		for (size_t i = 0; i < count; i++)
+		for (auto s : consoleLines)
 		{
-			text += consoleLines.front() + "\n";
-			temp.push(consoleLines.front());
-			consoleLines.pop();
+			text += s + "\n";
 		}
 
-		consoleLines.swap(temp);
 		consoleText->UpdateText(text);
 	}
 
@@ -601,6 +596,7 @@ namespace Core
 		Camera = new Core::Camera();
 		c->AddComponent(Camera);
 		Window->Input->SetCameraEntity(c);
+		AudioListener.SetCurrentListener(c);
 		Entities.push_back(c);
 
 		auto e = new Entity();
@@ -722,6 +718,14 @@ namespace Core
 
 		SoftBody* sb = new SoftBody(PhysicsWorld, Assets::Materials["Aluminum"], psb);
 		e->AddComponent(sb);
+		Entities.push_back(e);
+
+
+		// Audio Track Test
+		e = new Entity();
+		e->Transform.Position = glm::vec3(-2.0f, 1.0f, -4.0f);
+		Assets::AudioFiles["TestTrack"] = new AudioFile("Audio/testtrack.ogg", AudioFile::Type::MUSIC);
+		AudioListener.PlayTrack(new Track(Assets::AudioFiles["TestTrack"], e, 1.0f, false));
 		Entities.push_back(e);
 	}
 

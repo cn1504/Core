@@ -71,6 +71,13 @@ namespace Core
 	}
 
 
+	glm::vec3 RigidBody::GetVelocity()
+	{
+		auto v = body->getLinearVelocity();
+		return glm::vec3(v.getX(), v.getY(), v.getZ());
+	}
+
+
 	void RigidBody::SetGravity(const glm::vec3& g)
 	{
 		body->setGravity(btVector3(g.x, g.y, g.z));

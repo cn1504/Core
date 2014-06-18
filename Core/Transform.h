@@ -12,7 +12,9 @@ namespace Core
 		glm::vec3 Scale;
 
 		glm::vec3 Up;
+		glm::vec3 WSUp();
 		glm::vec3 Forward;
+		glm::vec3 WSForward();
 
 		Transform();
 		~Transform();

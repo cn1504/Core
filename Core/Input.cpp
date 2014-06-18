@@ -214,6 +214,16 @@ namespace Core
 			glfwSetWindowShouldClose(WindowPtr, 1);
 		}
 
+		else if (key == GLFW_KEY_S && action == GLFW_PRESS && GLFW_MOD_CONTROL & mods)
+		{
+			Settings::Audio::AudioEnabled = (Settings::Audio::AudioEnabled) ? 0 : 1;
+		}
+
+		else if (key == GLFW_KEY_M && action == GLFW_PRESS && GLFW_MOD_CONTROL & mods)
+		{
+			Settings::Audio::MusicEnabled = (Settings::Audio::MusicEnabled) ? 0 : 1;
+		}
+
 	}
 
 

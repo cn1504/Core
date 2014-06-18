@@ -8,6 +8,7 @@ namespace Core
 		std::unordered_map<std::string, Material*> Materials;
 		std::unordered_map<std::string, Texture*> Textures;
 		std::unordered_map<std::string, Font*> Fonts;
+		std::unordered_map<std::string, AudioFile*> AudioFiles;
 		
 		
 		void LoadStandardAssets()
@@ -377,6 +378,11 @@ namespace Core
 			}
 
 			for (auto c : Textures)
+			{
+				delete c.second;
+			}
+
+			for (auto c : AudioFiles)
 			{
 				delete c.second;
 			}

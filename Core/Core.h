@@ -7,7 +7,8 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
-#include <queue>
+#include <list>
+#include <deque>
 #include <unordered_map>
 #include <iomanip>
 #include <memory>
@@ -15,6 +16,7 @@
 #include <chrono>
 #include <stdexcept>
 #include <thread>
+#include <future>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -28,6 +30,9 @@
 #include <AL/alc.h>
 #include <AL/alext.h>
 #pragma comment(lib, "libOpenAL32.dll.a")
+
+#include <sndfile.h>
+#pragma comment(lib, "libsndfile-1.lib")
 
 #include <GLFW/glfw3.h>
 #pragma comment(lib, "glfw3.lib")
